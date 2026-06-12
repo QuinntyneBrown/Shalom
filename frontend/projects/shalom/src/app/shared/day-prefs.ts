@@ -13,6 +13,8 @@ export const INTENTION_OPTIONS: readonly { value: Intention; label: string }[] =
   { value: 'Treadmill', label: EQUIPMENT_LABELS.Treadmill },
   { value: 'IndoorBike', label: EQUIPMENT_LABELS.IndoorBike },
   { value: 'Elliptical', label: EQUIPMENT_LABELS.Elliptical },
+  { value: 'OutdoorWalk', label: EQUIPMENT_LABELS.OutdoorWalk },
+  { value: 'OutdoorRun', label: EQUIPMENT_LABELS.OutdoorRun },
   { value: 'Rest', label: 'Rest' },
 ];
 

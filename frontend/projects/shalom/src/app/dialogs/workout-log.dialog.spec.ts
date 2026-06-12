@@ -65,6 +65,21 @@ describe('WorkoutLogDialog', () => {
     expect(el('sh-sheet-effort-steady').classList.contains('selected')).toBe(true);
   });
 
+  it('offers outdoor walk and run alongside the machines and logs them', async () => {
+    await setup({ equipment: null });
+
+    expect(el('sh-sheet-machine-outdoorwalk').textContent).toBe('Outdoor walk');
+    expect(el('sh-sheet-machine-outdoorrun').textContent).toBe('Outdoor run');
+
+    el('sh-sheet-machine-outdoorrun').click();
+    fixture.detectChanges();
+    expect(el('sh-sheet-machine-outdoorrun').classList.contains('selected')).toBe(true);
+
+    el('sh-sheet-save-workout').click();
+    await fixture.whenStable();
+    expect(logCalls[0].equipment).toBe('OutdoorRun');
+  });
+
   it('steps duration by 5 and never below 5 minutes', async () => {
     await setup({ equipment: null });
 

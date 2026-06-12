@@ -56,7 +56,13 @@ export class HealthPage implements OnInit, OnDestroy {
   private readonly mealsApi = inject(MEALS_SERVICE);
   private readonly sheets = inject(SheetOpener);
 
-  protected readonly machines: readonly EquipmentType[] = ['Treadmill', 'IndoorBike', 'Elliptical'];
+  protected readonly machines: readonly EquipmentType[] = [
+    'Treadmill',
+    'IndoorBike',
+    'Elliptical',
+    'OutdoorWalk',
+    'OutdoorRun',
+  ];
   protected readonly labels = EQUIPMENT_LABELS;
 
   protected readonly fast = signal<CurrentFastDto | null>(null);
