@@ -12,6 +12,7 @@ public class PersonConfiguration : IEntityTypeConfiguration<Person>
         b.HasKey(x => x.Id);
         b.Property(x => x.Name).HasMaxLength(200).IsRequired();
         b.Property(x => x.Relationship).HasMaxLength(100);
+        b.Property(x => x.Phone).HasMaxLength(30);
         b.Property(x => x.Notes).HasMaxLength(2000);
         b.HasIndex(x => new { x.UserId, x.IsArchived });
         b.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);

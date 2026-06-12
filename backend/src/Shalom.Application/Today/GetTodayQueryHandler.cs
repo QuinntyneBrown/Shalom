@@ -6,7 +6,9 @@ using Shalom.Application.Common;
 using Shalom.Application.Contracts;
 using Shalom.Application.Exceptions;
 using Shalom.Application.Fasting;
+using Shalom.Application.ImportantDates;
 using Shalom.Application.Meals;
+using Shalom.Application.People;
 using Shalom.Application.Workouts;
 
 namespace Shalom.Application.Today;
@@ -42,8 +44,9 @@ public class GetTodayQueryHandler : IRequestHandler<GetTodayQuery, TodayDto>
         var fasting = await GetFastingAsync(userId, today, ct);
         var health = await GetHealthAsync(userId, today, ct);
         var streaks = await GetStreaksAsync(userId, today, ct);
+        var people = await GetPeopleAsync(userId, today, ct);
 
-        return new TodayDto(today, GreetingName(user.Email), checkIn, verse, reading, streaks, fasting, health);
+        return new TodayDto(today, GreetingName(user.Email), checkIn, verse, reading, streaks, fasting, health, people);
     }
 
     /// <summary>Email prefix until a profile name exists (the User entity has none yet).</summary>
@@ -144,6 +147,78 @@ public class GetTodayQueryHandler : IRequestHandler<GetTodayQuery, TodayDto>
         return new TodayHealthDto(
             todaysWorkouts.Select(LogWorkoutCommandHandler.ToDto).ToList(),
             lastMeal is null ? null : LogMealCommandHandler.ToDto(lastMeal));
+    }
+
+    /// <summary>
+    /// The connection slice — invitations, never obligations:
+    ///
+    ///   - upcoming dates: every important date of an active person inside
+    ///     its own LeadDays window, soonest first;
+    ///   - THE nudge (one per day max): none once anyone was contacted
+    ///     today; else a day-of important date replaces the rotation; else
+    ///     the most overdue due person (never-contacted ranks first, ties
+    ///     by name) with a deterministic per-day prompt.
+    /// </summary>
+    private async Task<TodayPeopleDto> GetPeopleAsync(Guid userId, DateOnly today, CancellationToken ct)
+    {
+        var people = await _db.People.AsNoTracking()
+            .Where(p => p.UserId == userId && !p.IsArchived)
+            .ToListAsync(ct);
+
+        var byId = people.ToDictionary(p => p.Id);
+        var personIds = people.Select(p => p.Id).ToList();
+
+        var dates = await _db.ImportantDates.AsNoTracking()
+            .Where(d => personIds.Contains(d.PersonId))
+            .ToListAsync(ct);
+
+        var upcoming = dates
+            .Select(d => new
+            {
+                Date = d,
+                Next = ImportantDateMath.NextOccurrence(d.Month, d.Day, today),
+                DaysUntil = ImportantDateMath.DaysUntil(d.Month, d.Day, today),
+            })
+            .Where(x => x.DaysUntil <= x.Date.LeadDays)
+            .OrderBy(x => x.DaysUntil)
+            .ThenBy(x => byId[x.Date.PersonId].Name, StringComparer.OrdinalIgnoreCase)
+            .Select(x => new UpcomingDateDto(
+                x.Date.PersonId, byId[x.Date.PersonId].Name, x.Date.Label, x.Next, x.DaysUntil))
+            .ToList();
+
+        return new TodayPeopleDto(SelectNudge(people, upcoming, today), upcoming);
+    }
+
+    private static ConnectionNudgeDto? SelectNudge(
+        IReadOnlyList<Domain.Entities.Person> people,
+        IReadOnlyList<UpcomingDateDto> upcoming,
+        DateOnly today)
+    {
+        // He already connected with someone today — the day is complete.
+        if (people.Any(p => p.LastContactedOn == today))
+            return null;
+
+        // A day-of important date replaces the rotation entirely.
+        var dayOf = upcoming.FirstOrDefault(u => u.DaysUntil == 0);
+        if (dayOf is not null)
+        {
+            var person = people.First(p => p.Id == dayOf.PersonId);
+            return new ConnectionNudgeDto(
+                person.Id, person.Name, person.Relationship,
+                NudgePrompts.ForDayOf(dayOf.Label), person.Phone);
+        }
+
+        var nudgee = people
+            .Where(p => ConnectionMath.IsDue(p.LastContactedOn, p.ContactCadenceDays, p.SnoozedUntil, today))
+            .OrderByDescending(p => ConnectionMath.DaysSinceDue(p.LastContactedOn, p.ContactCadenceDays!.Value, today))
+            .ThenBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+        if (nudgee is null)
+            return null;
+
+        return new ConnectionNudgeDto(
+            nudgee.Id, nudgee.Name, nudgee.Relationship,
+            NudgePrompts.For(nudgee.Name, nudgee.Relationship, today), nudgee.Phone);
     }
 
     private async Task<TodayStreaksDto> GetStreaksAsync(Guid userId, DateOnly today, CancellationToken ct)
