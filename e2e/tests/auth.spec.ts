@@ -24,4 +24,29 @@ test.describe('authentication', () => {
     await expect(page).toHaveURL(/\/sign-in/);
     await expect(pages.signIn.submitButton).toBeVisible();
   });
+
+  test('a deep link visited signed-out bounces through sign-in and returns to the target', async ({
+    api,
+    page,
+    pages,
+  }) => {
+    // requireAuth carries the original URL as ?returnUrl=…; the sign-in
+    // page only honors same-origin paths (safeReturnUrl).
+    const person = await api.createPerson({
+      name: `E2E Deep Link ${Date.now()}`,
+      relationship: 'Friend',
+    });
+    try {
+      await pages.personDetail.navigateTo(person.id);
+
+      await expect(page).toHaveURL(/\/sign-in\?returnUrl=%2Fpeople%2F/);
+      await pages.signIn.signIn(SEEDED_USER.email, SEEDED_USER.password);
+
+      // Back where we were headed, with the detail page actually loaded.
+      await expect(page).toHaveURL(new RegExp(`/people/${person.id}$`));
+      await expect(pages.personDetail.name).toHaveText(person.name);
+    } finally {
+      await api.archivePerson(person.id);
+    }
+  });
 });

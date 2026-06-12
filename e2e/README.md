@@ -8,10 +8,13 @@ on :5100), Page Object Model layout (saturdaze precedent):
 - `helpers/` — per-page selector maps (+ `dates.ts` local-date helpers)
 - `fixtures/` — the `test` fixture (`sh-test.ts`: POMs + authenticated API
   helper) and seeded credentials (`users.ts`)
-- `tests/` — hand-written specs (`auth`, `today` (morning ritual flow),
-  `night`, `check-in`, `reading`, `fasting`, `workouts`, `meals`, `people`,
-  `nudge`, `onboarding` (M7 welcome flow), `offline` (M7 service worker —
-  separate config, see below), `accessibility` (axe sweep))
+- `tests/` — hand-written specs (`auth` (incl. the M8 deep-link
+  returnUrl bounce), `today` (morning ritual flow), `night`, `check-in`,
+  `reading`, `fasting`, `workouts`, `meals`, `people`, `nudge`,
+  `onboarding` (M7 welcome flow), `settings` (M8 fasting-schedule
+  round-trip), `discovery` (M8 dismissal persistence), `offline` (M7
+  service worker — separate config, see below), `accessibility` (axe
+  sweep))
 - `scripts/prepare.mjs` — database prep (see below)
 
 ## Running
@@ -99,18 +102,28 @@ elapsed timer). The fixture's pinned clock makes the run deterministic:
 
 ## Database prep (`scripts/prepare.mjs`)
 
-LocalDB on this machine must be reached through its **named pipe**, not the
-`(localdb)\MSSQLLocalDB` shortcut (SQL Server 2025 / SqlClient interop bug —
-see the root `CLAUDE.md` and saturdaze ADR-001). Playwright starts
-`webServer` **before** `globalSetup`, so the pipe cannot be resolved inside
-the Playwright lifecycle. Instead the `pretest` npm script:
+Two modes (M8):
 
-1. resolves the pipe via `sqllocaldb info MSSQLLocalDB` (starting the
-   instance when needed),
-2. runs `shalom migrate` then `shalom seed` through
-   `backend/src/Shalom.Cli` against the resolved connection (both
-   idempotent — seeding never touches reading completions or check-ins),
-3. writes `SHALOM_CONNECTION=<pipe connection>` to `e2e/.env`.
+- **Env override (CI):** when `SHALOM_CONNECTION` is already set in the
+  environment, prepare.mjs uses it **verbatim** — no `sqllocaldb` call is
+  made at all (it logs `SHALOM_CONNECTION already set; skipping LocalDB
+  pipe resolution.`). The CI job sets a SQL-container connection with
+  `Initial Catalog=ShalomE2E`, a catalog dedicated to e2e (the backend
+  job's unit-test databases are never shared).
+- **Local (default):** LocalDB on this machine must be reached through its
+  **named pipe**, not the `(localdb)\MSSQLLocalDB` shortcut (SQL Server
+  2025 / SqlClient interop bug — see the root `CLAUDE.md` and saturdaze
+  ADR-001). Playwright starts `webServer` **before** `globalSetup`, so the
+  pipe cannot be resolved inside the Playwright lifecycle; prepare.mjs
+  resolves it via `sqllocaldb info MSSQLLocalDB` (starting the instance
+  when needed) and targets `Database=Shalom`.
+
+Either way the `pretest` npm script then:
+
+1. runs `shalom migrate` then `shalom seed` through
+   `backend/src/Shalom.Cli` against the connection (both idempotent —
+   seeding never touches reading completions or check-ins),
+2. writes `SHALOM_CONNECTION=<connection>` to `e2e/.env`.
 
 `playwright.config.ts` reads `.env` synchronously (a ten-line parser — no
 dotenv dependency) and passes `SHALOM_CONNECTION` +
@@ -121,9 +134,36 @@ from `scripts/Start-FreshStack.ps1`) is picked up as-is.
 Specs are repeat-safe: the check-in upsert is idempotent per local day,
 `reading.spec.ts` uncompletes today's surfaced reading through the API
 before driving the UI, `fasting.spec.ts` ends any open fast first (fasts
-are started via the API — the design has no start button), and
-`workouts.spec.ts` deletes the workout it created in teardown. Meals have
-no delete endpoint; `meals.spec.ts` asserts on a per-run unique text.
+are started via the API — the design has no start button),
+`workouts.spec.ts` deletes the workout it created in teardown,
+`settings.spec.ts` restores the original fasting schedule in a `finally`
+(other specs assert the seeded windows), and the auth deep-link spec
+archives the person it created. Meals have no delete endpoint;
+`meals.spec.ts` asserts on a per-run unique text.
+
+## CI (`.github/workflows/ci.yml`, `e2e` job)
+
+CI runs the suite on ubuntu against a SQL Server 2022 service container:
+
+- `SHALOM_CONNECTION` is set at the job level (`Initial Catalog=ShalomE2E`
+  on the container), so prepare.mjs takes the env-override path — no
+  `sqllocaldb` anywhere near Linux.
+- `TZ=America/Toronto` is pinned at the job level. The pinned-clock
+  fixture covers most time math, and the API derives its Toronto local
+  days itself via IANA ids (ADR-004) so the runner being UTC would be
+  fine server-side — pinning the Node/Playwright side keeps
+  `localIsoDate()` and friends honest anyway.
+- Only the **mobile** project runs in CI (suite time); the
+  tablet/desktop sweeps stay a local pre-merge concern.
+- `npm run test:offline` runs in the same job **after** the main suite.
+  Ordering matters: the offline config binds :4200 itself with
+  `reuseExistingServer: false`, and the main run's `ng serve` is a
+  Playwright-owned `webServer` that is torn down when that run exits —
+  so the port is free again between the two steps (verified locally by
+  running both back-to-back).
+- On failure the job uploads `playwright-report/` (the HTML reporter is
+  CI-only — see `reporter` in both configs) and `test-results/`
+  (traces/screenshots) as one artifact.
 
 ## Regenerating POM infrastructure
 
@@ -141,6 +181,28 @@ ppg writes its raw tree under `e2e/<app>/e2e/`; the valuable parts
 hand-refined to the stable `sh-*`/class hooks. This `playwright.config.ts`
 and `package.json` are hand-maintained and always win over generated ones.
 Never rebuild the `ppg` tool from source on this machine (Smart App Control).
+
+### M8 reconciliation pass
+
+`ppg workspace ./frontend` (ppg 1.9.0) was re-run into a temp dir and
+diffed against the hand-maintained tree:
+
+- **Adopted:** the `data-testid` selector sets for the two surfaces added
+  since the original M3 generation that had no POM yet — the Settings
+  page (`sh-settings-*`) and the fasting-schedule sheet
+  (`sh-sheet-schedule-*`). They were curated into
+  `helpers/settings-page.selectors.ts` + `pages/settings.page.ts` in the
+  hand-maintained style (sheet locators live on the page POM, the
+  person-detail precedent).
+- **Rejected:** everything else. Every other `data-testid` the generator
+  found was already present in the hand-maintained selector maps
+  (verified by diffing the extracted testid sets per page), and the
+  generated catch-alls remain unusable (`button`, four identical
+  `input[type='time']` entries, `has-text` selectors with broken quote
+  escaping — one is literally a TypeScript syntax error). Generated
+  tests/config/fixtures lose to the hand-maintained ones as always.
+
+The temp output was deleted after the pass.
 
 `http-server` stays a devDependency on purpose: `scripts/Start-FreshStack.ps1`
 resolves it from `e2e/node_modules` to serve the built frontend.

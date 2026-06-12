@@ -48,6 +48,93 @@ jobs:
           SHALOM_TEST_CONNECTION: 'Server=localhost,1433;User ID=sa;Password=Sh4lom!CI#2026x;TrustServerCertificate=True;Encrypt=False;Connect Timeout=30'
         run: dotnet test backend/Shalom.sln -c Release --no-build --nologo
 
+  e2e:
+    name: Playwright e2e (mobile + offline)
+    runs-on: ubuntu-latest
+    env:
+      # prepare.mjs uses this VERBATIM (no sqllocaldb call) for migrate+seed
+      # and the .env it writes; playwright.config.ts hands it to the API
+      # webServer. Dedicated ShalomE2E catalog — never shares the unit-test
+      # databases the backend job creates on the same container image.
+      SHALOM_CONNECTION: 'Server=localhost,1433;Initial Catalog=ShalomE2E;User ID=sa;Password=Sh4lom!CI#2026x;TrustServerCertificate=True;Encrypt=False;Connect Timeout=30'
+      # Time-band specs assume Toronto wall-clock on the Node/Playwright side
+      # (the API does its own IANA conversion server-side, ADR-004); the
+      # pinned-clock fixture covers most of it, but pin the process TZ too.
+      TZ: America/Toronto
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: 'Y'
+          MSSQL_SA_PASSWORD: 'Sh4lom!CI#2026x'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Sh4lom!CI#2026x' -C -Q 'SELECT 1' -b"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install e2e deps
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: e2e
+        run: npx playwright install chromium --with-deps
+
+      - name: Warm backend build
+        # Both webServer entries and prepare.mjs use `dotnet run` (Debug);
+        # pre-building keeps the API start inside its 120s webServer timeout.
+        run: dotnet build backend/Shalom.sln --nologo
+
+      - name: E2E (mobile project)
+        # `pretest` runs prepare.mjs: SHALOM_CONNECTION is set above, so it
+        # skips LocalDB pipe resolution and migrates+seeds ShalomE2E on the
+        # service container. CI runs the mobile project only — the
+        # tablet/desktop sweeps stay a local concern (suite time).
+        working-directory: e2e
+        run: npm test -- --project=mobile
+
+      - name: E2E (offline / PWA)
+        # Must run AFTER the main suite: it serves the prod-grade `e2e`
+        # build on :4200, and the main run's ng serve (a Playwright-owned
+        # webServer) is torn down when that run exits — so the port is free
+        # by the time this step starts (reuseExistingServer:false would
+        # otherwise fail fast).
+        working-directory: e2e
+        run: npm run test:offline
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          if-no-files-found: ignore
+          retention-days: 7
+
   frontend:
     name: Frontend build + tests
     runs-on: ubuntu-latest

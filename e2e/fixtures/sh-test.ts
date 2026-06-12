@@ -18,6 +18,7 @@ import { HealthPage } from '../pages/health.page';
 import { PeoplePage } from '../pages/people.page';
 import { PersonDetailPage } from '../pages/person-detail.page';
 import { RitualPage } from '../pages/ritual.page';
+import { SettingsPage } from '../pages/settings.page';
 import { SignInPage } from '../pages/sign-in.page';
 import { TodayPage } from '../pages/today.page';
 import { WelcomePage } from '../pages/welcome.page';
@@ -34,6 +35,7 @@ interface Pages {
   people: PeoplePage;
   personDetail: PersonDetailPage;
   welcome: WelcomePage;
+  settings: SettingsPage;
 }
 
 /**
@@ -105,15 +107,31 @@ export interface FastSession {
   outcome: 'Completed' | 'EndedEarly' | null;
 }
 
+export interface FastingOverride {
+  dayOfWeek:
+    | 'Sunday'
+    | 'Monday'
+    | 'Tuesday'
+    | 'Wednesday'
+    | 'Thursday'
+    | 'Friday'
+    | 'Saturday';
+  eatingWindowStart: string;
+  eatingWindowEnd: string;
+}
+
+export interface FastingSchedule {
+  eatingWindowStart: string;
+  eatingWindowEnd: string;
+  targetFastHours: number;
+  timeZoneId: string;
+  overrides: FastingOverride[];
+  todayWindow: { start: string; end: string };
+}
+
 export interface CurrentFast {
   current: FastSession | null;
-  schedule: {
-    eatingWindowStart: string;
-    eatingWindowEnd: string;
-    targetFastHours: number;
-    timeZoneId: string;
-    todayWindow: { start: string; end: string };
-  };
+  schedule: FastingSchedule;
 }
 
 export interface WorkoutRow {
@@ -223,6 +241,21 @@ export class ShalomApi {
   async ensureNoOpenFast(): Promise<void> {
     const { current } = await this.getCurrentFast();
     if (current) await this.endFast();
+  }
+
+  /** PUT /api/fasting/schedule — overrides replace the existing set wholesale. */
+  async updateSchedule(req: {
+    windowStart: string;
+    windowEnd: string;
+    targetFastHours: number;
+    overrides: FastingOverride[];
+  }): Promise<FastingSchedule> {
+    const res = await this.request.put(`${API_URL}/api/fasting/schedule`, {
+      headers: await this.bearer(),
+      data: req,
+    });
+    if (!res.ok()) throw new Error(`PUT /api/fasting/schedule failed (${res.status()}).`);
+    return (await res.json()) as FastingSchedule;
   }
 
   async fastingHistory(from: string, to: string): Promise<FastSession[]> {
@@ -361,6 +394,7 @@ export const test = base.extend<ShFixtures>({
       people: new PeoplePage(page),
       personDetail: new PersonDetailPage(page),
       welcome: new WelcomePage(page),
+      settings: new SettingsPage(page),
     });
   },
   api: async ({ request }, use) => {

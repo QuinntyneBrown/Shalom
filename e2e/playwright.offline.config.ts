@@ -51,7 +51,10 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  reporter: [['list']],
+  // CI uploads playwright-report/ as an artifact on failure.
+  reporter: process.env.CI
+    ? [['list'], ['html', { open: 'never' }]]
+    : [['list']],
   forbidOnly: !!process.env.CI,
   timeout: 120_000, // SW registration is 'registerWhenStable:30000'
   expect: {

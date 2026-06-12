@@ -1,16 +1,25 @@
 /**
  * Database preparation for the e2e suite — runs as the `pretest` npm script.
  *
- * LocalDB on this machine must be reached via its named pipe, not the
- * `(localdb)\MSSQLLocalDB` shortcut (SQL Server 2025 / SqlClient interop bug;
- * see CLAUDE.md and saturdaze ADR-001). Playwright's `webServer` starts
- * BEFORE `globalSetup` runs, so the pipe cannot be resolved there. Instead:
+ * Two modes:
  *
- *   1. resolve the pipe via `sqllocaldb info MSSQLLocalDB` (starting the
- *      instance if needed),
- *   2. run `shalom migrate` + `shalom seed` through the CLI project against
- *      the resolved connection (idempotent, safe to re-run),
- *   3. write SHALOM_CONNECTION to e2e/.env, which playwright.config.ts reads
+ *   - CI / explicit override: when SHALOM_CONNECTION is already set in the
+ *     environment, it is used VERBATIM — no `sqllocaldb` call is made at all
+ *     (CI runs Linux against a SQL Server container; the database name, e.g.
+ *     InitialCatalog=ShalomE2E, is the caller's choice).
+ *
+ *   - Local (default): LocalDB on this machine must be reached via its named
+ *     pipe, not the `(localdb)\MSSQLLocalDB` shortcut (SQL Server 2025 /
+ *     SqlClient interop bug; see CLAUDE.md and saturdaze ADR-001).
+ *     Playwright's `webServer` starts BEFORE `globalSetup` runs, so the pipe
+ *     cannot be resolved there. Instead this script resolves the pipe via
+ *     `sqllocaldb info MSSQLLocalDB` (starting the instance if needed).
+ *
+ * Either way it then:
+ *
+ *   1. runs `shalom migrate` + `shalom seed` through the CLI project against
+ *      the connection (idempotent, safe to re-run),
+ *   2. writes SHALOM_CONNECTION to e2e/.env, which playwright.config.ts reads
  *      synchronously and passes to the API webServer's env.
  */
 
@@ -39,12 +48,22 @@ function resolveLocalDbPipe() {
   return match[1];
 }
 
-const pipe = resolveLocalDbPipe();
-const connection =
-  `Server=${pipe};Database=Shalom;Trusted_Connection=True;` +
-  'TrustServerCertificate=True;Min Pool Size=1';
+function resolveConnection() {
+  const preset = process.env.SHALOM_CONNECTION;
+  if (preset) {
+    console.log('SHALOM_CONNECTION already set; skipping LocalDB pipe resolution.');
+    return preset;
+  }
 
-console.log(`Resolved LocalDB pipe: ${pipe}`);
+  const pipe = resolveLocalDbPipe();
+  console.log(`Resolved LocalDB pipe: ${pipe}`);
+  return (
+    `Server=${pipe};Database=Shalom;Trusted_Connection=True;` +
+    'TrustServerCertificate=True;Min Pool Size=1'
+  );
+}
+
+const connection = resolveConnection();
 
 for (const command of ['migrate', 'seed']) {
   console.log(`Running shalom ${command}...`);
