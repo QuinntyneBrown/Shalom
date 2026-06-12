@@ -157,7 +157,10 @@
 
   h2 {
     margin: 0;
+    font-family: var(--sh-font-sans);
     font-size: var(--sh-fs-md);
+    font-weight: var(--sh-fw-bold);
+    letter-spacing: 0;
   }
 
   .meta {
@@ -242,9 +245,10 @@
   }
 }
 
-// ---- morning complete --------------------------------------------------------
+// ---- morning complete + the gentle still-here card ---------------------------
 
-.morning-complete {
+.morning-complete,
+.still-here {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -259,31 +263,7 @@
     min-width: 0;
   }
 
-  .mc-title {
-    margin: 0;
-    font-size: var(--sh-fs-md);
-    font-weight: var(--sh-fw-semibold);
-    color: var(--sh-ink);
-  }
-
-  .mc-sub {
-    margin: 2px 0 0;
-    font-size: var(--sh-fs-base);
-    color: var(--sh-ink-soft);
-  }
-}
-
-// ---- still-here (gentle, never guilt) ---------------------------------------
-
-.still-here {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  .copy {
-    flex: 1;
-  }
-
+  .mc-title,
   .still-title {
     margin: 0;
     font-size: var(--sh-fs-md);
@@ -291,9 +271,10 @@
     color: var(--sh-ink);
   }
 
+  .mc-sub,
   .still-sub {
     margin: 2px 0 0;
-    font-size: var(--sh-fs-sm);
+    font-size: var(--sh-fs-base);
     color: var(--sh-ink-soft);
   }
 }

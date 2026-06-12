@@ -206,13 +206,14 @@ $enter-ease: cubic-bezier(0.05, 0.7, 0.1, 1);
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 13px 20px;
+    padding: 13px 12px;
     border: 1px solid var(--sh-line-strong);
     border-radius: var(--sh-r-pill);
-    font-size: var(--sh-fs-base);
+    font-size: var(--sh-fs-sm);
     font-weight: var(--sh-fw-semibold);
     color: var(--sh-primary);
     text-decoration: none;
+    white-space: nowrap;
 
     .material-symbols-rounded {
       font-size: 18px;
