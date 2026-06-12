@@ -70,6 +70,10 @@ export * from './lib/models/today-people-dto';
 export * from './lib/models/gratitude-entry-dto';
 export * from './lib/models/add-gratitude-request';
 
+// Push models (M10 web-push reminders)
+export * from './lib/models/subscribe-to-push-request';
+export * from './lib/models/vapid-public-key-dto';
+
 // Service contracts (interface + InjectionToken)
 export * from './lib/services/auth.service.contract';
 export * from './lib/services/session-store.contract';
@@ -81,6 +85,7 @@ export * from './lib/services/workouts.service.contract';
 export * from './lib/services/meals.service.contract';
 export * from './lib/services/people.service.contract';
 export * from './lib/services/gratitude.service.contract';
+export * from './lib/services/push.service.contract';
 
 // Concrete implementations (imported only by composition roots)
 export * from './lib/services/auth.service';
@@ -93,3 +98,4 @@ export * from './lib/services/workouts.service';
 export * from './lib/services/meals.service';
 export * from './lib/services/people.service';
 export * from './lib/services/gratitude.service';
+export * from './lib/services/push.service';

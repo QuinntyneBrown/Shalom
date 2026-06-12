@@ -20,6 +20,8 @@ public interface IAppDbContext
     DbSet<Person> People { get; }
     DbSet<GratitudeEntry> GratitudeEntries { get; }
     DbSet<ImportantDate> ImportantDates { get; }
+    DbSet<PushSubscription> PushSubscriptions { get; }
+    DbSet<PushSendLog> PushSendLogs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

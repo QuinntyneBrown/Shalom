@@ -46,11 +46,17 @@
 
 <p class="group-label">Reminders</p>
 <div class="group">
-  <div class="row" data-testid="sh-settings-nudges">
+  <button
+    type="button"
+    class="row tappable"
+    data-testid="sh-settings-nudges"
+    (click)="openReminders()"
+  >
     <span class="icon material-symbols-rounded" aria-hidden="true">notifications</span>
     <span class="label">Nudges</span>
-    <span class="value">window only</span>
-  </div>
+    <span class="value">{{ nudgesValue() }}</span>
+    <span class="chevron material-symbols-rounded" aria-hidden="true">chevron_right</span>
+  </button>
   <div class="row" data-testid="sh-settings-calendar">
     <span class="icon material-symbols-rounded" aria-hidden="true">calendar_month</span>
     <span class="label">Calendar feed</span>

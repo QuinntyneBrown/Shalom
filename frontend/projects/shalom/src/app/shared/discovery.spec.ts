@@ -5,6 +5,7 @@ import { DiscoveryState, evaluateDiscovery } from './discovery';
 function makeToday(overrides?: {
   checkInCurrent?: number;
   fastingLongest?: number;
+  ritualCompletedToday?: boolean;
 }): TodayDto {
   return {
     date: '2026-06-12',
@@ -25,7 +26,7 @@ function makeToday(overrides?: {
     fasting: { current: null, todayWindow: { start: '12:00:00', end: '20:00:00' }, windowOpen: false, targetHours: 16 },
     health: { todaysWorkouts: [], lastMeal: null },
     people: { nudge: null, upcomingDates: [], prayerFocus: { name: 'your church', line: 'Pray.', tomorrowName: 'FaithTech' } },
-    ritualCompletedToday: false,
+    ritualCompletedToday: overrides?.ritualCompletedToday ?? false,
   };
 }
 
@@ -80,6 +81,37 @@ describe('evaluateDiscovery', () => {
     const trends = evaluateDiscovery(makeToday(), week3, TODAY);
     expect(trends?.id).toBe('trends');
     expect(trends?.soon).toBe(true);
+  });
+
+  it('surfaces the push opt-in after the first completed ritual when the env allows', () => {
+    const today = makeToday({ ritualCompletedToday: true });
+    const card = evaluateDiscovery(today, makeState(), TODAY, { pushOptIn: true });
+
+    expect(card?.id).toBe('push-nudges');
+    expect(card?.body).toBe('Want a tap on the shoulder when your eating window opens?');
+    expect(card?.ctaLabel).toBe('Turn on');
+    expect(card?.ctaRoute).toBeNull(); // the host runs the subscribe flow
+  });
+
+  it('keeps the push card away until the ritual is completed', () => {
+    expect(
+      evaluateDiscovery(makeToday(), makeState(), TODAY, { pushOptIn: true }),
+    ).toBeNull();
+  });
+
+  it('keeps the push card away when the environment cannot push (default env)', () => {
+    expect(
+      evaluateDiscovery(makeToday({ ritualCompletedToday: true }), makeState(), TODAY),
+    ).toBeNull();
+  });
+
+  it('push dismissal is the standard 7-day snooze', () => {
+    const today = makeToday({ ritualCompletedToday: true });
+    const snoozed = makeState({ snoozedUntil: { 'push-nudges': '2026-06-19' } });
+    expect(evaluateDiscovery(today, snoozed, TODAY, { pushOptIn: true })).toBeNull();
+
+    const expired = makeState({ snoozedUntil: { 'push-nudges': '2026-06-12' } });
+    expect(evaluateDiscovery(today, expired, TODAY, { pushOptIn: true })?.id).toBe('push-nudges');
   });
 
   it('only ever returns one card — highest-priority eligible wins', () => {

@@ -17,6 +17,7 @@ import { DiscoveryCard, MOOD_LABELS, ProgressRing } from 'components';
 import { MealLogDialog } from '../../dialogs/meal-log.dialog';
 import { SheetOpener } from '../../dialogs/sheet';
 import { WorkoutLogDialog, WorkoutLogData } from '../../dialogs/workout-log.dialog';
+import { PushReminders } from '../../pwa/push-reminders';
 import { appNow } from '../../shared/clock';
 import {
   INTENTION_OPTIONS,
@@ -63,6 +64,7 @@ export class TodayPage implements OnInit, OnDestroy {
   protected readonly store = inject(TodayStore);
   private readonly sheets = inject(SheetOpener);
   private readonly router = inject(Router);
+  private readonly push = inject(PushReminders);
 
   /** 1s heartbeat: live fasting elapsed, countdowns, band edges. */
   protected readonly now = signal(appNow().getTime());
@@ -240,7 +242,10 @@ export class TodayPage implements OnInit, OnDestroy {
     if (!today) return null;
     this.discoveryVersion();
     const todayIso = toIsoDate(appNow());
-    return evaluateDiscovery(today, this.discoveryStorage.read(todayIso), todayIso);
+    // M10: the push card needs environment facts (installed PWA, permission
+    // never asked) the Today aggregate cannot carry — the engine stays pure.
+    const env = { pushOptIn: this.push.optInAvailable() };
+    return evaluateDiscovery(today, this.discoveryStorage.read(todayIso), todayIso, env);
   });
 
   /** Record the day a card is actually rendered (drives "never two days in a row"). */
@@ -324,6 +329,19 @@ export class TodayPage implements OnInit, OnDestroy {
   }
 
   protected followDiscovery(card: DiscoveryCardModel): void {
+    // M10 push opt-in: the CTA tap IS the user gesture iOS requires, so
+    // enable() starts synchronously here. Subscribed → the card retires;
+    // anything else (denied, transient failure) → the standard 7-day
+    // snooze, and ineligibility keeps a denied device quiet anyway.
+    if (card.id === 'push-nudges') {
+      void this.push.enable().then((state) => {
+        if (state === 'on') this.discoveryStorage.markDone(card.id);
+        else this.discoveryStorage.snooze(card.id, toIsoDate(appNow()));
+        this.discoveryVersion.update((v) => v + 1);
+      });
+      return;
+    }
+
     this.discoveryStorage.markDone(card.id);
     this.discoveryVersion.update((v) => v + 1);
     if (card.ctaRoute) void this.router.navigateByUrl(card.ctaRoute);

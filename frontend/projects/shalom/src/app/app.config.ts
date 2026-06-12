@@ -24,6 +24,8 @@ import {
   MealsService,
   PEOPLE_SERVICE,
   PeopleService,
+  PUSH_SERVICE,
+  PushService,
   READING_SERVICE,
   ReadingService,
   SESSION_STORE,
@@ -36,6 +38,7 @@ import {
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { PushReminders } from './pwa/push-reminders';
 import { ThemeService } from './theme/theme.service';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -45,6 +48,9 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => inject(SESSION_STORE).rehydrate()),
     // Dawn theme: applied before first paint, re-checked once a minute.
     provideAppInitializer(() => inject(ThemeService).start()),
+    // M10: reminder taps deep-link via SwPush.notificationClicks (no-op
+    // wherever the service worker is disabled).
+    provideAppInitializer(() => inject(PushReminders).start()),
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },
@@ -71,6 +77,9 @@ export const appConfig: ApplicationConfig = {
     // People slice — circle, derived nudges, gratitude, important dates.
     { provide: PEOPLE_SERVICE, useExisting: PeopleService },
     { provide: GRATITUDE_SERVICE, useExisting: GratitudeService },
+
+    // Push slice (M10) — subscription endpoints + VAPID key.
+    { provide: PUSH_SERVICE, useExisting: PushService },
 
     // PWA (M7): ngsw app-shell + the `/api/today` and `/api/auth/me`
     // freshness caches (ngsw-config.json). Disabled in dev mode so

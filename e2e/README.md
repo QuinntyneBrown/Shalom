@@ -12,7 +12,8 @@ on :5100), Page Object Model layout (saturdaze precedent):
   returnUrl bounce), `today` (morning ritual flow), `night`, `check-in`,
   `reading`, `fasting`, `workouts`, `meals`, `people`, `nudge`,
   `onboarding` (M7 welcome flow), `settings` (M8 fasting-schedule
-  round-trip), `discovery` (M8 dismissal persistence), `offline` (M7
+  round-trip), `discovery` (M8 dismissal persistence), `reminders` (M10
+  nudges sheet — see "Push reminders spec" below), `offline` (M7
   service worker — separate config, see below), `accessibility` (axe
   sweep))
 - `scripts/prepare.mjs` — database prep (see below)
@@ -99,6 +100,29 @@ window countdown — proving the live time math runs client-side on the
 cached aggregate (the same `appNow()` derivation that drives the fast
 elapsed timer). The fixture's pinned clock makes the run deterministic:
 14:30 is midday in every seeded schedule (weekday and Sunday override).
+
+## Push reminders spec (`reminders.spec.ts`, M10) — what's automatable
+
+`tests/reminders.spec.ts` covers the Settings → REMINDERS sheet: the
+Nudges row reads `off`, the sheet renders the whisper copy, and the
+no-service-worker path stays graceful (no enable tap offered, "Okay"
+closes, the app keeps working). That last path is real in this suite, not
+simulated: the dev server has no service worker, so `SwPush.isEnabled` is
+false — the exact state an uninstalled or unsupported device sees.
+
+Limits, verified against Playwright + headless Chromium:
+
+- `context.grantPermissions(['notifications'])` IS supported for Chromium
+  and is used in the spec — but it only pre-answers the permission prompt.
+  It cannot conjure a push subscription: `PushManager.subscribe` needs the
+  production service worker (offline config territory) and a reachable
+  push service for the VAPID handshake, and headless Chromium has no FCM
+  session (`--enable-features` flags don't change that).
+- A real end-to-end push (subscribe → backend send → notification banner →
+  deep link) is therefore the owner's manual step on the installed iPhone
+  PWA (iOS 16.4+). The subscription/send/prune logic itself is covered by
+  backend unit + API tests, and the SwPush flows by Vitest with a mocked
+  `SwPush`.
 
 ## Database prep (`scripts/prepare.mjs`)
 

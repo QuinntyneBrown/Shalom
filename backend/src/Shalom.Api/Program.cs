@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Shalom.Api.Authentication;
+using Shalom.Api.HostedServices;
 using Shalom.Api.Middleware;
 using Shalom.Application;
 using Shalom.Application.Authentication;
@@ -33,6 +34,9 @@ try
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
+
+    // M10 reminder heartbeat — dormant until VAPID keys are configured.
+    builder.Services.AddHostedService<ReminderSchedulerService>();
 
     builder.Services.AddControllers()
         .AddJsonOptions(opt =>

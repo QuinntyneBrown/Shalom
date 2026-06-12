@@ -1,0 +1,57 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Nudges</h2>
+<p class="subtitle" data-testid="sh-sheet-reminders-copy">
+  A tap on the shoulder when your window opens, a heads-up before it closes,
+  and a week's notice for the dates that matter.
+</p>
+<p class="quiet-note">Never between 9:30pm and 6:30am. Never twice.</p>
+
+@switch (push.state()) {
+  @case ('on') {
+    <p class="status" data-testid="sh-sheet-reminders-status">Nudges are on for this device.</p>
+    <button
+      type="button"
+      class="secondary"
+      data-testid="sh-sheet-reminders-disable"
+      [disabled]="busy()"
+      (click)="turnOff()"
+    >{{ busy() ? 'One moment…' : 'Turn off' }}</button>
+  }
+  @case ('off') {
+    @if (justDenied()) {
+      <p class="status" data-testid="sh-sheet-reminders-status">
+        No problem — Shalom works just as well without taps on the shoulder.
+      </p>
+    }
+    <button
+      type="button"
+      class="save"
+      data-testid="sh-sheet-reminders-enable"
+      [disabled]="busy()"
+      (click)="turnOn()"
+    >{{ busy() ? 'One moment…' : 'Turn on nudges' }}</button>
+  }
+  @case ('denied') {
+    <p class="status" data-testid="sh-sheet-reminders-status">
+      No problem — Shalom works just as well without taps on the shoulder.
+    </p>
+    <button
+      type="button"
+      class="secondary"
+      data-testid="sh-sheet-reminders-close"
+      (click)="close()"
+    >Okay</button>
+  }
+  @default {
+    <p class="status" data-testid="sh-sheet-reminders-status">
+      Nudges arrive once Shalom lives on your Home Screen — and it works
+      just as well without them.
+    </p>
+    <button
+      type="button"
+      class="secondary"
+      data-testid="sh-sheet-reminders-close"
+      (click)="close()"
+    >Okay</button>
+  }
+}

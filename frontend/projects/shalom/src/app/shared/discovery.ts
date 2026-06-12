@@ -12,10 +12,23 @@ import { daysBetweenIso } from './people-format';
 
 export type DiscoveryId =
   | 'streaks'
+  | 'push-nudges'
   | 'fast-schedule'
   | 'meal-notes'
   | 'evening-reflection'
   | 'trends';
+
+/**
+ * Environment facts the Today aggregate cannot know. `pushOptIn` is true
+ * only on an installed standalone PWA where push is possible and the
+ * permission question has never been asked (M10: asked in context, never
+ * at launch). The engine stays pure — the host computes this.
+ */
+export interface DiscoveryEnv {
+  readonly pushOptIn: boolean;
+}
+
+const DEFAULT_ENV: DiscoveryEnv = { pushOptIn: false };
 
 export interface DiscoveryCardModel {
   readonly id: DiscoveryId;
@@ -48,6 +61,15 @@ const CARDS: readonly DiscoveryCardModel[] = [
     body: 'Three mornings with you. Shalom will quietly count the days now — Sundays never break them.',
     ctaLabel: null,
     ctaRoute: null,
+    soon: false,
+  },
+  {
+    id: 'push-nudges',
+    icon: 'notifications',
+    title: 'A tap on the shoulder',
+    body: 'Want a tap on the shoulder when your eating window opens?',
+    ctaLabel: 'Turn on',
+    ctaRoute: null, // handled by the host: the tap runs the subscribe flow
     soon: false,
   },
   {
@@ -88,11 +110,14 @@ const CARDS: readonly DiscoveryCardModel[] = [
   },
 ];
 
-/** Eligibility per card, judged only from the Today aggregate + days of use. */
-function eligible(id: DiscoveryId, today: TodayDto, daysOfUse: number): boolean {
+/** Eligibility per card, judged from the Today aggregate + days of use (+ env). */
+function eligible(id: DiscoveryId, today: TodayDto, daysOfUse: number, env: DiscoveryEnv): boolean {
   switch (id) {
     case 'streaks':
       return today.streaks.checkInCurrent >= 3;
+    case 'push-nudges':
+      // The first completed ritual on a device that could actually whisper.
+      return env.pushOptIn && today.ritualCompletedToday;
     case 'fast-schedule':
       return today.streaks.fastingLongest >= 1;
     case 'meal-notes':
@@ -112,7 +137,12 @@ function eligible(id: DiscoveryId, today: TodayDto, daysOfUse: number): boolean 
  *  3. otherwise the first eligible, un-snoozed, un-retired card in
  *     declaration order.
  */
-export function evaluateDiscovery(today: TodayDto, state: DiscoveryState, todayIso: string): DiscoveryCardModel | null {
+export function evaluateDiscovery(
+  today: TodayDto,
+  state: DiscoveryState,
+  todayIso: string,
+  env: DiscoveryEnv = DEFAULT_ENV,
+): DiscoveryCardModel | null {
   if (
     state.lastShownIso &&
     state.lastShownIso !== todayIso &&
@@ -126,7 +156,7 @@ export function evaluateDiscovery(today: TodayDto, state: DiscoveryState, todayI
     (card) =>
       !state.done.includes(card.id) &&
       !(state.snoozedUntil[card.id] && state.snoozedUntil[card.id]! > todayIso) &&
-      eligible(card.id, today, daysOfUse),
+      eligible(card.id, today, daysOfUse, env),
   );
 
   if (state.lastShownIso === todayIso) {

@@ -9,9 +9,11 @@ import {
   ICheckInsService,
   IFastingService,
   IPeopleService,
+  IPushService,
   IReadingService,
   ITodayService,
   PEOPLE_SERVICE,
+  PUSH_SERVICE,
   READING_SERVICE,
   TODAY_SERVICE,
   TodayDto,
@@ -141,6 +143,9 @@ describe('TodayPage', () => {
         { provide: READING_SERVICE, useValue: readingMock },
         { provide: FASTING_SERVICE, useValue: fastingMock },
         { provide: PEOPLE_SERVICE, useValue: peopleMock },
+        // No SwPush provider → PushReminders reads as 'unsupported' and the
+        // push discovery card stays ineligible in these specs.
+        { provide: PUSH_SERVICE, useValue: {} as IPushService },
         { provide: SheetOpener, useValue: { open: openSheet } },
       ],
     }).compileComponents();

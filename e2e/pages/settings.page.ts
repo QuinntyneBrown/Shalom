@@ -15,9 +15,17 @@ export class SettingsPage extends BasePage {
   readonly fastingRow: Locator;
   readonly quietDaysRow: Locator;
   readonly readingPlanRow: Locator;
+  readonly nudgesRow: Locator;
   readonly everythingRow: Locator;
   readonly replayWelcomeRow: Locator;
   readonly signOut: Locator;
+
+  // Reminders sheet (M10, CDK overlay).
+  readonly sheetRemindersCopy: Locator;
+  readonly sheetRemindersStatus: Locator;
+  readonly sheetRemindersEnable: Locator;
+  readonly sheetRemindersDisable: Locator;
+  readonly sheetRemindersClose: Locator;
 
   // Fasting-schedule sheet (renders in the CDK overlay container).
   readonly sheetScheduleStart: Locator;
@@ -38,9 +46,16 @@ export class SettingsPage extends BasePage {
     this.fastingRow = page.locator(S.fastingRow);
     this.quietDaysRow = page.locator(S.quietDaysRow);
     this.readingPlanRow = page.locator(S.readingPlanRow);
+    this.nudgesRow = page.locator(S.nudgesRow);
     this.everythingRow = page.locator(S.everythingRow);
     this.replayWelcomeRow = page.locator(S.replayWelcomeRow);
     this.signOut = page.locator(S.signOut);
+
+    this.sheetRemindersCopy = page.locator(S.sheetRemindersCopy);
+    this.sheetRemindersStatus = page.locator(S.sheetRemindersStatus);
+    this.sheetRemindersEnable = page.locator(S.sheetRemindersEnable);
+    this.sheetRemindersDisable = page.locator(S.sheetRemindersDisable);
+    this.sheetRemindersClose = page.locator(S.sheetRemindersClose);
 
     this.sheetScheduleStart = page.locator(S.sheetScheduleStart);
     this.sheetScheduleEnd = page.locator(S.sheetScheduleEnd);

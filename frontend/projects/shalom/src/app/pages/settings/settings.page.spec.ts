@@ -11,16 +11,19 @@ import {
   ICheckInsService,
   IFastingService,
   IPeopleService,
+  IPushService,
   IReadingService,
   ISessionStore,
   ITodayService,
   PEOPLE_SERVICE,
+  PUSH_SERVICE,
   READING_SERVICE,
   SESSION_STORE,
   TODAY_SERVICE,
   TodayDto,
 } from 'api';
 
+import { RemindersDialog } from '../../dialogs/reminders.dialog';
 import { SheetOpener } from '../../dialogs/sheet';
 import { SettingsPage } from './settings.page';
 
@@ -92,6 +95,8 @@ describe('SettingsPage', () => {
         { provide: CHECK_INS_SERVICE, useValue: {} as ICheckInsService },
         { provide: READING_SERVICE, useValue: {} as IReadingService },
         { provide: PEOPLE_SERVICE, useValue: {} as IPeopleService },
+        // No SwPush provider → PushReminders reads 'unsupported' → row "off".
+        { provide: PUSH_SERVICE, useValue: {} as IPushService },
         { provide: SheetOpener, useValue: { open: openSheet } },
       ],
     }).compileComponents();
@@ -117,7 +122,7 @@ describe('SettingsPage', () => {
     expect(el('sh-settings-fasting').textContent).toContain('16:8');
     expect(el('sh-settings-quiet-days').textContent).toContain('Sun');
     expect(el('sh-settings-reading-plan').textContent).toContain('John & His Letters');
-    expect(el('sh-settings-nudges').textContent).toContain('window only');
+    expect(el('sh-settings-nudges').textContent).toContain('off');
     expect(el('sh-settings-calendar').textContent).toContain('off');
     expect(el('sh-settings-about').textContent).toContain('0.1');
     expect(text).toContain('Everything Shalom can do');
@@ -134,6 +139,15 @@ describe('SettingsPage', () => {
     fixture.detectChanges();
 
     expect(el('sh-settings-fasting').textContent).toContain('14:10');
+  });
+
+  it('the nudges row opens the reminders sheet', async () => {
+    await setup();
+
+    el('sh-settings-nudges').click();
+
+    expect(openSheet).toHaveBeenCalledTimes(1);
+    expect(openSheet.mock.calls[0][0]).toBe(RemindersDialog);
   });
 
   it('theme chips set and persist the override', async () => {

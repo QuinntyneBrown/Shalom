@@ -18,6 +18,9 @@ export const settingsPageSelectors = {
   /** FAITH group */
   readingPlanRow: '[data-testid="sh-settings-reading-plan"]',
 
+  /** REMINDERS group (M10) */
+  nudgesRow: '[data-testid="sh-settings-nudges"]',
+
   /** APPEARANCE — append the preference, e.g. `sh-settings-theme-dawn"]`. */
   themeChipPrefix: '[data-testid="sh-settings-theme-',
 
@@ -26,6 +29,13 @@ export const settingsPageSelectors = {
   replayWelcomeRow: '[data-testid="sh-settings-replay-welcome"]',
 
   signOut: '[data-testid="sh-settings-sign-out"]',
+
+  /** Reminders sheet (CDK overlay, M10) */
+  sheetRemindersCopy: '[data-testid="sh-sheet-reminders-copy"]',
+  sheetRemindersStatus: '[data-testid="sh-sheet-reminders-status"]',
+  sheetRemindersEnable: '[data-testid="sh-sheet-reminders-enable"]',
+  sheetRemindersDisable: '[data-testid="sh-sheet-reminders-disable"]',
+  sheetRemindersClose: '[data-testid="sh-sheet-reminders-close"]',
 
   /** Fasting-schedule sheet (CDK overlay) */
   sheetScheduleStart: '[data-testid="sh-sheet-schedule-start"]',

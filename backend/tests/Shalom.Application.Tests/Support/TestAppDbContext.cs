@@ -27,6 +27,8 @@ internal sealed class TestAppDbContext : DbContext, IAppDbContext
     public DbSet<Person> People => Set<Person>();
     public DbSet<GratitudeEntry> GratitudeEntries => Set<GratitudeEntry>();
     public DbSet<ImportantDate> ImportantDates => Set<ImportantDate>();
+    public DbSet<PushSubscription> PushSubscriptions => Set<PushSubscription>();
+    public DbSet<PushSendLog> PushSendLogs => Set<PushSendLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

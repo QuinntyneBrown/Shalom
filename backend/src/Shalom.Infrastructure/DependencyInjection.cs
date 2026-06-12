@@ -1,10 +1,13 @@
+using Lib.Net.Http.WebPush;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shalom.Application.Abstractions;
 using Shalom.Application.Authentication;
+using Shalom.Application.Push;
 using Shalom.Infrastructure.Authentication;
 using Shalom.Infrastructure.Persistence;
+using Shalom.Infrastructure.Push;
 
 namespace Shalom.Infrastructure;
 
@@ -40,6 +43,20 @@ public static class DependencyInjection
 
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddSingleton<IJwtTokenService, JwtTokenService>();
+
+        // Web Push (M10). VAPID keys resolve env-var-first, exactly like the
+        // JWT signing key above; without keys the sender quietly no-ops.
+        services.Configure<PushOptions>(o =>
+        {
+            configuration.GetSection(PushOptions.SectionName).Bind(o);
+            var publicKey = Environment.GetEnvironmentVariable("SHALOM_PUSH_PUBLIC_KEY");
+            if (!string.IsNullOrWhiteSpace(publicKey)) o.PublicKey = publicKey;
+            var privateKey = Environment.GetEnvironmentVariable("SHALOM_PUSH_PRIVATE_KEY");
+            if (!string.IsNullOrWhiteSpace(privateKey)) o.PrivateKey = privateKey;
+        });
+
+        services.AddHttpClient<PushServiceClient>();
+        services.AddScoped<INotificationSender, WebPushNotificationSender>();
 
         return services;
     }

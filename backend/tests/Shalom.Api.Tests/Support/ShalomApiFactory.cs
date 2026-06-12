@@ -39,12 +39,18 @@ public sealed class ShalomApiFactory : WebApplicationFactory<Program>, IAsyncLif
                 ["Shalom:Jwt:Audience"] = "shalom-test-clients",
                 ["Shalom:Jwt:SigningKey"] = "test-only-signing-key-must-be-at-least-32-bytes-long",
                 ["Shalom:Jwt:AccessTokenMinutes"] = "15",
+                ["Shalom:Push:PublicKey"] = "test-vapid-public-key",
+                ["Shalom:Push:PrivateKey"] = "test-vapid-private-key",
             });
         });
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<Shalom.Application.Common.IDateTimeProvider>();
             services.AddSingleton<Shalom.Application.Common.IDateTimeProvider>(Clock);
+            // The reminder scheduler runs in-process (push keys above make it
+            // live); a no-op sender keeps tests hermetic — no Web Push HTTP.
+            services.RemoveAll<Shalom.Application.Push.INotificationSender>();
+            services.AddSingleton<Shalom.Application.Push.INotificationSender, NoopNotificationSender>();
         });
     }
 

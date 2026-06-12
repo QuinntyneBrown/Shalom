@@ -1,0 +1,47 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  margin: 0 0 8px;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+  line-height: var(--sh-lh-base);
+}
+
+.quiet-note {
+  margin: 0 0 16px;
+  font-size: var(--sh-fs-xs);
+  color: var(--sh-ink-faint);
+}
+
+.status {
+  margin: 0 0 16px;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+  line-height: var(--sh-lh-base);
+}
+
+.save {
+  @include sheet.sheet-save;
+}
+
+// Same calm pill as save, but quiet — turning nudges OFF (or just closing)
+// is never the loud action.
+.secondary {
+  @include sheet.sheet-save;
+  background: transparent;
+  border: 1px solid var(--sh-line-strong);
+  color: var(--sh-ink-soft);
+}
