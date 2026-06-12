@@ -70,6 +70,10 @@ jobs:
 
       - name: Unit tests (Vitest)
         working-directory: frontend
+        env:
+          # Sunrise/dawn-theme specs assert Toronto-local behavior (ADR-004);
+          # GitHub runners default to UTC.
+          TZ: America/Toronto
         run: |
           npx ng test shalom
           npx ng test api
