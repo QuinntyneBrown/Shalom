@@ -47,6 +47,7 @@ const todayDto: TodayDto = {
     targetHours: 16,
   },
   health: { todaysWorkouts: [], lastMeal: null },
+  people: { nudge: null, upcomingDates: [] },
 };
 
 describe('TodayService', () => {

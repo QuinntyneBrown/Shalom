@@ -1,0 +1,67 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">{{ title }}</h2>
+
+<label class="field-label" for="person-name">Name</label>
+<input
+  id="person-name"
+  class="input"
+  type="text"
+  name="name"
+  maxlength="100"
+  placeholder="Their name"
+  autocomplete="off"
+  data-testid="sh-sheet-person-name"
+  [value]="name()"
+  (input)="onInput('name', $event)"
+/>
+
+<label class="field-label" for="person-relationship">Relationship</label>
+<input
+  id="person-relationship"
+  class="input"
+  type="text"
+  name="relationship"
+  maxlength="50"
+  placeholder="Wife, daughter, friend… (optional)"
+  autocomplete="off"
+  data-testid="sh-sheet-person-relationship"
+  [value]="relationship()"
+  (input)="onInput('relationship', $event)"
+/>
+
+<label class="field-label" for="person-phone">Phone</label>
+<input
+  id="person-phone"
+  class="input"
+  type="tel"
+  name="phone"
+  maxlength="30"
+  placeholder="For text and call (optional)"
+  autocomplete="off"
+  data-testid="sh-sheet-person-phone"
+  [value]="phone()"
+  (input)="onInput('phone', $event)"
+/>
+
+<label class="field-label" for="person-cadence">Stay in touch</label>
+<select
+  id="person-cadence"
+  class="input select"
+  name="cadence"
+  data-testid="sh-sheet-person-cadence"
+  (change)="onCadenceChange($event)"
+>
+  @for (option of cadences; track option.value) {
+    <option [value]="option.value" [selected]="cadence() === option.value">
+      {{ option.label }}
+    </option>
+  }
+</select>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-person"
+  [disabled]="!canSave()"
+  (click)="save()"
+>{{ saving() ? 'Saving…' : 'Save' }}</button>

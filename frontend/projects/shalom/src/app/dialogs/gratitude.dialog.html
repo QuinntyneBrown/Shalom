@@ -1,0 +1,22 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Gratitude</h2>
+<p class="subtitle">Just between you and God.</p>
+
+<textarea
+  class="text"
+  name="gratitude"
+  maxlength="500"
+  rows="3"
+  placeholder="What are you thankful for?"
+  data-testid="sh-sheet-gratitude-text"
+  [value]="text()"
+  (input)="onTextInput($event)"
+></textarea>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-gratitude"
+  [disabled]="!canSave()"
+  (click)="save()"
+>{{ saving() ? 'Saving…' : 'Keep this' }}</button>

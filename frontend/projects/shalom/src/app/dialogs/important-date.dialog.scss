@@ -1,0 +1,56 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  margin: 0 0 16px;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+}
+
+.field-label {
+  display: block;
+  margin: 0 0 6px;
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-soft);
+}
+
+.input {
+  @include sheet.sheet-input;
+  margin-bottom: 14px;
+}
+
+.select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.when {
+  display: flex;
+  gap: 10px;
+
+  .part {
+    flex: 1;
+  }
+
+  .month {
+    flex: 1.6;
+  }
+}
+
+.save {
+  @include sheet.sheet-save;
+  margin-top: 6px;
+}

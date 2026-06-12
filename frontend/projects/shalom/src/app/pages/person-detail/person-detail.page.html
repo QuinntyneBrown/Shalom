@@ -1,0 +1,112 @@
+@if (person(); as p) {
+  <header class="top-bar">
+    <a
+      class="icon-button"
+      routerLink="/people"
+      aria-label="Back to people"
+      data-testid="sh-detail-back"
+    ><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span></a>
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Edit person"
+      data-testid="sh-detail-edit"
+      (click)="openEditSheet()"
+    ><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
+  </header>
+
+  <section class="identity" aria-label="Person">
+    <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+    <h1 class="name" data-testid="sh-detail-name">{{ p.name }}</h1>
+    @if (p.relationship) {
+      <p class="relationship" data-testid="sh-detail-relationship">{{ p.relationship }}</p>
+    }
+    @if (lastContact(); as contact) {
+      <p class="last-contact" data-testid="sh-detail-last-contact">{{ contact }}</p>
+    }
+  </section>
+
+  <div class="quick-actions">
+    @if (smsHref(); as sms) {
+      <a class="action filled" [href]="sms" data-testid="sh-detail-text">
+        <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
+        Text
+      </a>
+    }
+    @if (telHref(); as tel) {
+      <a class="action outlined" [href]="tel" data-testid="sh-detail-call">
+        <span class="material-symbols-rounded" aria-hidden="true">call</span>
+        Call
+      </a>
+    }
+    <button
+      type="button"
+      class="action outlined"
+      data-testid="sh-detail-connected"
+      [disabled]="acting()"
+      (click)="connected()"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">check</span>
+      Connected
+    </button>
+  </div>
+
+  <section class="card" data-testid="sh-dates-card" aria-label="Important dates">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">cake</span>
+      <h2>Important dates</h2>
+    </div>
+
+    @for (d of p.dates; track d.id) {
+      <div class="date-row" data-testid="sh-date-row">
+        <span class="label">{{ d.label }}</span>
+        <span class="when" data-testid="sh-date-when">
+          {{ d.nextOccurrence | date: 'MMM d' }} · {{ whenLabel(d) }}
+        </span>
+        <button
+          type="button"
+          class="remove"
+          [attr.aria-label]="'Remove ' + d.label"
+          data-testid="sh-date-remove"
+          [disabled]="acting()"
+          (click)="removeDate(d)"
+        ><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+      </div>
+    } @empty {
+      <p class="empty">No dates yet.</p>
+    }
+
+    <button
+      type="button"
+      class="card-link"
+      data-testid="sh-detail-add-date"
+      (click)="openDateSheet()"
+    >Add a date</button>
+  </section>
+
+  <section class="card" data-testid="sh-gratitude-card" aria-label="Gratitude">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">favorite</span>
+      <h2>Gratitude</h2>
+      <span class="meta">just between you and God</span>
+    </div>
+
+    @for (entry of gratitude(); track entry.id) {
+      <div class="gratitude-entry" data-testid="sh-gratitude-entry">
+        <p class="text">{{ entry.text }}</p>
+        <p class="date">{{ entry.occurredOn | date: 'MMMM d' }}</p>
+      </div>
+    } @empty {
+      <p class="empty">Nothing written yet.</p>
+    }
+
+    <button
+      type="button"
+      class="card-button"
+      data-testid="sh-detail-add-note"
+      (click)="openGratitudeSheet()"
+    >Add a note</button>
+  </section>
+} @else {
+  <p class="loading">One moment…</p>
+}

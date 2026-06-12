@@ -1,6 +1,7 @@
 import { CheckInDto } from './check-in-dto';
 import { TodayFastingDto } from './today-fasting-dto';
 import { TodayHealthDto } from './today-health-dto';
+import { TodayPeopleDto } from './today-people-dto';
 import { TodayReadingDto } from './today-reading-dto';
 import { TodayStreaksDto } from './today-streaks-dto';
 import { VerseDto } from './verse-dto';
@@ -19,4 +20,5 @@ export interface TodayDto {
   readonly streaks: TodayStreaksDto;
   readonly fasting: TodayFastingDto;
   readonly health: TodayHealthDto;
+  readonly people: TodayPeopleDto;
 }

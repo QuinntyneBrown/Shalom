@@ -17,8 +17,12 @@ import {
   CheckInsService,
   FASTING_SERVICE,
   FastingService,
+  GRATITUDE_SERVICE,
+  GratitudeService,
   MEALS_SERVICE,
   MealsService,
+  PEOPLE_SERVICE,
+  PeopleService,
   READING_SERVICE,
   ReadingService,
   SESSION_STORE,
@@ -58,5 +62,9 @@ export const appConfig: ApplicationConfig = {
     { provide: FASTING_SERVICE, useExisting: FastingService },
     { provide: WORKOUTS_SERVICE, useExisting: WorkoutsService },
     { provide: MEALS_SERVICE, useExisting: MealsService },
+
+    // People slice — circle, derived nudges, gratitude, important dates.
+    { provide: PEOPLE_SERVICE, useExisting: PeopleService },
+    { provide: GRATITUDE_SERVICE, useExisting: GratitudeService },
   ],
 };

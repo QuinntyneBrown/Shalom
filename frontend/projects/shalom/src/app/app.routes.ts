@@ -10,7 +10,7 @@ import { requireAuth } from './auth/require-auth.guard';
  * - `/sign-in` is the only public surface; signed-in visitors are bounced
  *   back to `/today` by `requireAnonymous`.
  * - The app surfaces (`/today`, `/health`, `/health/fasting`, `/people`,
- *   `/settings`) are all guarded by `requireAuth`.
+ *   `/people/:id`, `/settings`) are all guarded by `requireAuth`.
  * - `**` lands on the not-found page.
  */
 export const routes: Routes = [
@@ -49,6 +49,12 @@ export const routes: Routes = [
     canActivate: [requireAuth],
     loadComponent: () =>
       import('./pages/people/people.page').then((m) => m.PeoplePage),
+  },
+  {
+    path: 'people/:id',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/person-detail/person-detail.page').then((m) => m.PersonDetailPage),
   },
   {
     path: 'settings',

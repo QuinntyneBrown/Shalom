@@ -12,6 +12,8 @@ import { RouterLink } from '@angular/router';
 
 import {
   CHECK_INS_SERVICE,
+  ConnectionNudgeDto,
+  PEOPLE_SERVICE,
   READING_SERVICE,
   TODAY_SERVICE,
   TodayDto,
@@ -19,6 +21,7 @@ import {
 import { DotScale, ProgressRing, RatingChips, ReadingCard, VerseCard } from 'components';
 
 import { formatElapsed, formatWindowTime } from '../../shared/health-format';
+import { daysUntilLabel, smsHref } from '../../shared/people-format';
 
 /**
  * Today pillar — the morning surface.
@@ -31,6 +34,11 @@ import { formatElapsed, formatWindowTime } from '../../shared/health-format';
  * client, ADR-004) and patches the signal; marking the reading done
  * refetches the aggregate so completion, counts, and streaks stay
  * authoritative.
+ *
+ * The Connection card renders the SERVER-selected daily nudge
+ * (`people.nudge`, at most one per day, suppressed once anyone was
+ * contacted today — ADR-004) plus the nearest upcoming important date.
+ * Done / Not today round-trip and refetch; no nudge state lives here.
  */
 @Component({
   selector: 'app-today',
@@ -44,6 +52,7 @@ export class TodayPage implements OnInit, OnDestroy {
   private readonly todayService = inject(TODAY_SERVICE);
   private readonly checkIns = inject(CHECK_INS_SERVICE);
   private readonly reading = inject(READING_SERVICE);
+  private readonly people = inject(PEOPLE_SERVICE);
 
   protected readonly today = signal<TodayDto | null>(null);
 
@@ -85,6 +94,41 @@ export class TodayPage implements OnInit, OnDestroy {
     const fasting = this.today()?.fasting;
     return fasting ? `${fasting.targetHours}:${24 - fasting.targetHours}` : '';
   });
+
+  protected readonly connecting = signal(false);
+
+  /** Nearest upcoming important date, rendered as one quiet line. */
+  protected readonly upcomingDateLine = computed(() => {
+    const upcoming = this.today()?.people.upcomingDates[0];
+    if (!upcoming) return null;
+    return `${upcoming.personName} — ${upcoming.label} ${daysUntilLabel(upcoming.daysUntil)}`;
+  });
+
+  protected nudgeSmsHref(nudge: ConnectionNudgeDto): string {
+    return smsHref(nudge.phone ?? '', nudge.name);
+  }
+
+  protected async connectionDone(nudge: ConnectionNudgeDto): Promise<void> {
+    if (this.connecting()) return;
+    this.connecting.set(true);
+    try {
+      await this.people.recordContact(nudge.personId);
+      await this.load();
+    } finally {
+      this.connecting.set(false);
+    }
+  }
+
+  protected async connectionSnooze(nudge: ConnectionNudgeDto): Promise<void> {
+    if (this.connecting()) return;
+    this.connecting.set(true);
+    try {
+      await this.people.snooze(nudge.personId);
+      await this.load();
+    } finally {
+      this.connecting.set(false);
+    }
+  }
 
   ngOnInit(): void {
     this.tick = setInterval(() => this.now.set(Date.now()), 1_000);

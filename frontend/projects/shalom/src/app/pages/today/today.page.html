@@ -77,6 +77,47 @@
     </div>
   </a>
 
+  @if (t.people.nudge; as n) {
+    <section class="connection-card" data-testid="sh-today-connection" aria-label="Connection">
+      <div class="head">
+        <span class="icon material-symbols-rounded" aria-hidden="true">favorite</span>
+        <h2>Connection</h2>
+        <span class="meta">today</span>
+      </div>
+      <p class="prompt" data-testid="sh-today-connection-prompt">{{ n.prompt }}</p>
+      <div class="actions">
+        @if (n.phone) {
+          <a
+            class="chip filled"
+            [href]="nudgeSmsHref(n)"
+            data-testid="sh-today-connection-text"
+          >Text</a>
+        }
+        <button
+          type="button"
+          class="chip"
+          data-testid="sh-today-connection-done"
+          [disabled]="connecting()"
+          (click)="connectionDone(n)"
+        >Done</button>
+        <button
+          type="button"
+          class="chip plain"
+          data-testid="sh-today-connection-snooze"
+          [disabled]="connecting()"
+          (click)="connectionSnooze(n)"
+        >Not today</button>
+      </div>
+    </section>
+  }
+
+  @if (upcomingDateLine(); as line) {
+    <p class="upcoming-date" data-testid="sh-today-upcoming-date">
+      <span class="material-symbols-rounded" aria-hidden="true">cake</span>
+      {{ line }}
+    </p>
+  }
+
   <p class="streaks">
     {{ t.streaks.checkInCurrent }}-day check-in rhythm ·
     {{ t.streaks.readingCurrent }}-day reading rhythm

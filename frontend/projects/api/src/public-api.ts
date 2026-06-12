@@ -57,6 +57,18 @@ export * from './lib/models/log-meal-request';
 export * from './lib/models/today-fasting-dto';
 export * from './lib/models/today-health-dto';
 
+// People models (people / nudges / gratitude / important dates)
+export * from './lib/models/person-dto';
+export * from './lib/models/person-detail-dto';
+export * from './lib/models/save-person-request';
+export * from './lib/models/important-date-dto';
+export * from './lib/models/add-important-date-request';
+export * from './lib/models/connection-nudge-dto';
+export * from './lib/models/upcoming-date-dto';
+export * from './lib/models/today-people-dto';
+export * from './lib/models/gratitude-entry-dto';
+export * from './lib/models/add-gratitude-request';
+
 // Service contracts (interface + InjectionToken)
 export * from './lib/services/auth.service.contract';
 export * from './lib/services/session-store.contract';
@@ -66,6 +78,8 @@ export * from './lib/services/reading.service.contract';
 export * from './lib/services/fasting.service.contract';
 export * from './lib/services/workouts.service.contract';
 export * from './lib/services/meals.service.contract';
+export * from './lib/services/people.service.contract';
+export * from './lib/services/gratitude.service.contract';
 
 // Concrete implementations (imported only by composition roots)
 export * from './lib/services/auth.service';
@@ -76,3 +90,5 @@ export * from './lib/services/reading.service';
 export * from './lib/services/fasting.service';
 export * from './lib/services/workouts.service';
 export * from './lib/services/meals.service';
+export * from './lib/services/people.service';
+export * from './lib/services/gratitude.service';

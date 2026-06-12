@@ -1,0 +1,70 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Add a date</h2>
+<p class="subtitle">Surfaced a week early — never missed.</p>
+
+<label class="field-label" for="date-label">What is it?</label>
+<input
+  id="date-label"
+  class="input"
+  type="text"
+  name="label"
+  maxlength="50"
+  placeholder="Birthday, anniversary…"
+  autocomplete="off"
+  data-testid="sh-sheet-date-label"
+  [value]="label()"
+  (input)="onLabelInput($event)"
+/>
+
+<div class="when">
+  <div class="part month">
+    <label class="field-label" for="date-month">Month</label>
+    <select
+      id="date-month"
+      class="input select"
+      name="month"
+      data-testid="sh-sheet-date-month"
+      (change)="onMonthChange($event)"
+    >
+      @for (name of months; track name; let i = $index) {
+        <option [value]="i + 1" [selected]="month() === i + 1">{{ name }}</option>
+      }
+    </select>
+  </div>
+  <div class="part">
+    <label class="field-label" for="date-day">Day</label>
+    <input
+      id="date-day"
+      class="input"
+      type="number"
+      name="day"
+      min="1"
+      max="31"
+      placeholder="1–31"
+      data-testid="sh-sheet-date-day"
+      [value]="day()"
+      (input)="onDayInput($event)"
+    />
+  </div>
+  <div class="part">
+    <label class="field-label" for="date-year">Year</label>
+    <input
+      id="date-year"
+      class="input"
+      type="number"
+      name="year"
+      placeholder="Optional"
+      data-testid="sh-sheet-date-year"
+      [value]="year()"
+      (input)="onYearInput($event)"
+    />
+  </div>
+</div>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-date"
+  [disabled]="!canSave()"
+  (click)="save()"
+>{{ saving() ? 'Saving…' : 'Add date' }}</button>

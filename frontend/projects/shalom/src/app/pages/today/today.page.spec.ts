@@ -5,8 +5,10 @@ import {
   CHECK_INS_SERVICE,
   CheckInDto,
   ICheckInsService,
+  IPeopleService,
   IReadingService,
   ITodayService,
+  PEOPLE_SERVICE,
   READING_SERVICE,
   TODAY_SERVICE,
   TodayDto,
@@ -50,6 +52,15 @@ const baseToday: TodayDto = {
     targetHours: 16,
   },
   health: { todaysWorkouts: [], lastMeal: null },
+  people: { nudge: null, upcomingDates: [] },
+};
+
+const natalieNudge = {
+  personId: 'p-1',
+  name: 'Natalie',
+  relationship: 'Wife',
+  prompt: 'Tell Natalie one thing you appreciated about her this week.',
+  phone: '+1 416 555 0100',
 };
 
 describe('TodayPage', () => {
@@ -57,11 +68,15 @@ describe('TodayPage', () => {
   let todayResponse: TodayDto;
   let upsertCalls: UpsertCheckInRequest[];
   let completedDayIds: string[];
+  let contactedIds: string[];
+  let snoozedIds: string[];
 
   async function setup(dto: TodayDto): Promise<void> {
     todayResponse = dto;
     upsertCalls = [];
     completedDayIds = [];
+    contactedIds = [];
+    snoozedIds = [];
 
     const todayMock: ITodayService = {
       getToday: async () => todayResponse,
@@ -102,6 +117,19 @@ describe('TodayPage', () => {
       },
       uncompleteDay: async () => undefined,
     };
+    const peopleMock = {
+      recordContact: async (id: string) => {
+        contactedIds.push(id);
+        // The server suppresses the nudge once anyone was contacted today.
+        todayResponse = { ...todayResponse, people: { ...todayResponse.people, nudge: null } };
+        return {} as never;
+      },
+      snooze: async (id: string) => {
+        snoozedIds.push(id);
+        todayResponse = { ...todayResponse, people: { ...todayResponse.people, nudge: null } };
+        return {} as never;
+      },
+    } as unknown as IPeopleService;
 
     await TestBed.configureTestingModule({
       imports: [TodayPage],
@@ -110,6 +138,7 @@ describe('TodayPage', () => {
         { provide: TODAY_SERVICE, useValue: todayMock },
         { provide: CHECK_INS_SERVICE, useValue: checkInsMock },
         { provide: READING_SERVICE, useValue: readingMock },
+        { provide: PEOPLE_SERVICE, useValue: peopleMock },
       ],
     }).compileComponents();
 
@@ -233,5 +262,77 @@ describe('TodayPage', () => {
     expect(el.querySelector('sh-reading-card .mark-read')).toBeNull();
     expect(el.querySelector('sh-reading-card .done')?.textContent).toContain('Read today');
     expect(el.querySelector('sh-reading-card .progress')?.textContent?.trim()).toBe('1 of 28 read');
+  });
+
+  it('renders the connection card with the server-selected nudge and an sms quick action', async () => {
+    await setup({ ...baseToday, people: { nudge: natalieNudge, upcomingDates: [] } });
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('[data-testid="sh-today-connection-prompt"]')?.textContent?.trim()).toBe(
+      natalieNudge.prompt,
+    );
+    const text = el.querySelector('[data-testid="sh-today-connection-text"]') as HTMLAnchorElement;
+    expect(text.getAttribute('href')).toContain('sms:+1 416 555 0100&body=');
+  });
+
+  it('hides the connection card entirely when the server sends no nudge', async () => {
+    await setup(baseToday);
+
+    expect(fixture.nativeElement.querySelector('[data-testid="sh-today-connection"]')).toBeNull();
+  });
+
+  it('Done records the contact and the refetched aggregate clears the card', async () => {
+    await setup({ ...baseToday, people: { nudge: natalieNudge, upcomingDates: [] } });
+    const el: HTMLElement = fixture.nativeElement;
+
+    (el.querySelector('[data-testid="sh-today-connection-done"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(contactedIds).toEqual(['p-1']);
+    expect(el.querySelector('[data-testid="sh-today-connection"]')).toBeNull();
+  });
+
+  it('Not today snoozes and the refetched aggregate clears the card', async () => {
+    await setup({ ...baseToday, people: { nudge: natalieNudge, upcomingDates: [] } });
+    const el: HTMLElement = fixture.nativeElement;
+
+    (el.querySelector('[data-testid="sh-today-connection-snooze"]') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(snoozedIds).toEqual(['p-1']);
+    expect(el.querySelector('[data-testid="sh-today-connection"]')).toBeNull();
+  });
+
+  it('shows the nearest upcoming important date as a quiet line', async () => {
+    await setup({
+      ...baseToday,
+      people: {
+        nudge: null,
+        upcomingDates: [
+          { personId: 'p-2', personName: 'Maya', label: 'Birthday', date: '2026-06-17', daysUntil: 5 },
+          { personId: 'p-1', personName: 'Natalie', label: 'Anniversary', date: '2026-06-19', daysUntil: 7 },
+        ],
+      },
+    });
+
+    const line = fixture.nativeElement.querySelector('[data-testid="sh-today-upcoming-date"]');
+    expect(line?.textContent).toContain('Maya — Birthday in 5 days');
+  });
+
+  it('says "today" when the upcoming date is the day of', async () => {
+    await setup({
+      ...baseToday,
+      people: {
+        nudge: null,
+        upcomingDates: [
+          { personId: 'p-2', personName: 'Maya', label: 'Birthday', date: '2026-06-12', daysUntil: 0 },
+        ],
+      },
+    });
+
+    const line = fixture.nativeElement.querySelector('[data-testid="sh-today-upcoming-date"]');
+    expect(line?.textContent).toContain('Maya — Birthday today');
   });
 });

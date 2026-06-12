@@ -1,11 +1,76 @@
 <header class="page-head">
   <h1>People</h1>
+  <p class="tagline">the ones God gave you</p>
 </header>
 
-<sh-pillar-card
-  icon="diversity_1"
-  title="Your circle"
-  subtitle="The relationships that matter"
->
-  <p>People and connection will live here.</p>
-</sh-pillar-card>
+@if (loaded()) {
+  @if (nudge(); as n) {
+    <section class="card nudge" data-testid="sh-nudge-card" aria-label="Today's nudge">
+      <div class="card-head">
+        <span class="icon material-symbols-rounded" aria-hidden="true">favorite</span>
+        <h2>Today's nudge</h2>
+      </div>
+
+      <p class="prompt" data-testid="sh-nudge-prompt">{{ n.prompt }}</p>
+
+      <div class="actions">
+        @if (n.phone) {
+          <a class="action filled" [href]="smsHref(n)" data-testid="sh-nudge-text">
+            <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
+            Text
+          </a>
+          <a class="action outlined" [href]="telHref(n)" data-testid="sh-nudge-call">Call</a>
+        }
+        <button
+          type="button"
+          class="action outlined"
+          data-testid="sh-nudge-done"
+          [disabled]="acting()"
+          (click)="done(n)"
+        >Done</button>
+        <button
+          type="button"
+          class="action plain"
+          data-testid="sh-nudge-snooze"
+          [disabled]="acting()"
+          (click)="notToday(n)"
+        >Not today</button>
+      </div>
+    </section>
+  }
+
+  <section class="card list" data-testid="sh-people-list" aria-label="Your people">
+    @for (p of people(); track p.id) {
+      <a class="person-row" [routerLink]="['/people', p.id]" data-testid="sh-person-row">
+        <span class="avatar" aria-hidden="true">{{ initial(p) }}</span>
+        <span class="copy">
+          <span class="name">{{ p.name }}</span>
+          <span class="caption">{{ caption(p) }}</span>
+        </span>
+        @if (connectedToday(p)) {
+          <span
+            class="gold-dot"
+            data-testid="sh-person-connected-dot"
+            aria-label="Connected today"
+          ></span>
+        }
+      </a>
+    } @empty {
+      <p class="empty">No one here yet — start with the people under your roof.</p>
+    }
+
+    <button
+      type="button"
+      class="person-row add"
+      data-testid="sh-add-person"
+      (click)="openAddSheet()"
+    >
+      <span class="avatar plus" aria-hidden="true">
+        <span class="material-symbols-rounded">add</span>
+      </span>
+      <span class="name quiet">Someone on your heart…</span>
+    </button>
+  </section>
+} @else {
+  <p class="loading">Gathering your people…</p>
+}
