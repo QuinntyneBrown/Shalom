@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+bin/
+obj/
+dist/
+out/
+coverage/
+artifacts/
+.run/
+
+# Claude Code session state
+.claude/
+
+# Azure deployment state (contains secrets)
+.deploy/
+
+# Angular
+.angular/
+
+# Playwright
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+
+# Logs
+logs/
+*.log
+
+# OS
+Thumbs.db
+.DS_Store

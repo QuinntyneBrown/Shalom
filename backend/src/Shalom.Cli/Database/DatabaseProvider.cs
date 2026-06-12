@@ -1,0 +1,8 @@
+namespace Shalom.Cli.Database;
+
+public enum DatabaseProvider
+{
+    SqlServer,
+    Sqlite,
+    InMemory
+}

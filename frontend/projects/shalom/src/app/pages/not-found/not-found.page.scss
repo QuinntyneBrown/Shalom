@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  padding-top: 24px;
+}
+
+.page-head h1 {
+  margin: 0 0 16px;
+  font-size: var(--sh-fs-xxl);
+}
+
+a {
+  color: var(--sh-primary);
+  font-weight: var(--sh-fw-medium);
+}

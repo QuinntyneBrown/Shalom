@@ -1,0 +1,58 @@
+import { Routes } from '@angular/router';
+
+import { requireAnonymous } from './auth/require-anonymous.guard';
+import { requireAuth } from './auth/require-auth.guard';
+
+/**
+ * Shalom application routes.
+ *
+ * - `/` redirects to `/today`, the default pillar.
+ * - `/sign-in` is the only public surface; signed-in visitors are bounced
+ *   back to `/today` by `requireAnonymous`.
+ * - The four app surfaces (`/today`, `/health`, `/people`, `/settings`)
+ *   are all guarded by `requireAuth`.
+ * - `**` lands on the not-found page.
+ */
+export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'today',
+  },
+  {
+    path: 'sign-in',
+    data: { shell: 'auth' },
+    canActivate: [requireAnonymous],
+    loadComponent: () =>
+      import('./pages/sign-in/sign-in.page').then((m) => m.SignInPage),
+  },
+  {
+    path: 'today',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/today/today.page').then((m) => m.TodayPage),
+  },
+  {
+    path: 'health',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/health/health.page').then((m) => m.HealthPage),
+  },
+  {
+    path: 'people',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/people/people.page').then((m) => m.PeoplePage),
+  },
+  {
+    path: 'settings',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/settings/settings.page').then((m) => m.SettingsPage),
+  },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.page').then((m) => m.NotFoundPage),
+  },
+];

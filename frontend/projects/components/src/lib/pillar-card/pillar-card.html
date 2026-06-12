@@ -1,0 +1,18 @@
+@if (icon() || title() || subtitle()) {
+  <header class="head">
+    @if (icon(); as ic) {
+      <span class="icon material-symbols-rounded" aria-hidden="true">{{ ic }}</span>
+    }
+    <div class="heading">
+      @if (title(); as t) {
+        <h2 class="title">{{ t }}</h2>
+      }
+      @if (subtitle(); as s) {
+        <p class="subtitle">{{ s }}</p>
+      }
+    </div>
+  </header>
+}
+<div class="body">
+  <ng-content />
+</div>

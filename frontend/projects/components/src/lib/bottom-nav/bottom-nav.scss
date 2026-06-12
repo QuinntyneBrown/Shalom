@@ -1,0 +1,62 @@
+:host {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  // Ported from Saturdaze ADR-005 (docs/adr/ADR-005, BUG-047 + BUG-049).
+  // The bottom-nav must clear whichever bottom-edge obstruction is
+  // currently present:
+  //   - `env(safe-area-inset-bottom)` for the home indicator (~34px on
+  //     Face-ID iPhones in PWA / standalone mode).
+  //   - `var(--sh-chrome-bottom)` for iOS Safari's *current* bottom
+  //     URL/tab bar height — set by `trackBottomChrome()` in main.ts
+  //     using the VisualViewport API. Pure CSS viewport-unit math
+  //     measures combined top+bottom chrome and can't isolate just the
+  //     bottom, which is why JS measurement is required here. ADR-005
+  //     documents the four rejected pure-CSS attempts.
+  // These are NOT additive — when Safari's chrome is visible it already
+  // covers the home indicator zone, so we take the larger of the two and
+  // add a 12px visual floor. Do not simplify without re-reading ADR-005.
+  bottom: calc(
+    12px
+    + max(env(safe-area-inset-bottom, 0px), var(--sh-chrome-bottom, 0px))
+  );
+  width: calc(100% - 24px);
+  max-width: calc(var(--sh-app-max-w) - 24px);
+  background: var(--sh-surface);
+  border: 1px solid var(--sh-line);
+  border-radius: var(--sh-r-xl);
+  box-shadow: var(--sh-shadow-2);
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  z-index: 10;
+}
+
+a {
+  text-decoration: none;
+  color: var(--sh-ink-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: var(--sh-r-md);
+  gap: 2px;
+  font-size: 10px;
+  font-weight: var(--sh-fw-medium);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  .material-symbols-rounded {
+    font-size: 22px;
+  }
+}
+
+a[data-active="true"] {
+  color: var(--sh-primary);
+  background: var(--sh-primary-container);
+
+  .material-symbols-rounded {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}

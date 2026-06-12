@@ -1,0 +1,41 @@
+<div class="card">
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="head">
+      <h1>Shalom</h1>
+      <p class="sub">Welcome back. Begin the day in peace.</p>
+    </div>
+
+    <label class="field">
+      <span>Email</span>
+      <input
+        type="email"
+        name="email"
+        placeholder="you@example.com"
+        autocomplete="username"
+        formControlName="email"
+      />
+    </label>
+
+    <label class="field">
+      <span>Password</span>
+      <input
+        type="password"
+        name="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+        formControlName="password"
+      />
+    </label>
+
+    <label class="remember">
+      <input type="checkbox" formControlName="remember" />
+      <span>Remember me</span>
+    </label>
+
+    @if (error(); as err) {
+      <div class="auth-error" role="alert">{{ err.message }}</div>
+    }
+
+    <button type="submit" [disabled]="submitting()">Sign in</button>
+  </form>
+</div>

@@ -1,0 +1,14 @@
+[
+  {
+    "email": "quinntynebrown@gmail.com",
+    "password": "password123",
+    "role": "User",
+    "emailVerified": true
+  },
+  {
+    "email": "admin@shalom.app",
+    "password": "password123",
+    "role": "Admin",
+    "emailVerified": true
+  }
+]

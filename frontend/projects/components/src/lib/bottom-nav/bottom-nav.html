@@ -1,0 +1,12 @@
+@for (item of items; track item.key) {
+  <a
+    [attr.href]="item.href"
+    [attr.data-active]="isActive(item.key)"
+    [attr.data-nav-key]="item.key"
+    [attr.aria-current]="isActive(item.key) ? 'page' : null"
+    (click)="onNavigate($event, item.route)"
+  >
+    <span class="material-symbols-rounded" aria-hidden="true">{{ item.icon }}</span>
+    <span>{{ item.label }}</span>
+  </a>
+}
