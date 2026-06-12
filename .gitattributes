@@ -1,0 +1,4 @@
+# Pencil design files are a binary format — never normalize line endings
+*.pen binary
+*.png binary
+*.ico binary
