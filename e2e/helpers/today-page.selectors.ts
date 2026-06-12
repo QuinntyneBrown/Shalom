@@ -35,6 +35,14 @@ export const todayPageSelectors = {
   markReadButton: 'sh-reading-card button.mark-read',
   readingDone: 'sh-reading-card .done',
 
+  /** Connection card (server-selected daily nudge) */
+  connectionCard: '[data-testid="sh-today-connection"]',
+  connectionPrompt: '[data-testid="sh-today-connection-prompt"]',
+  connectionText: '[data-testid="sh-today-connection-text"]',
+  connectionDone: '[data-testid="sh-today-connection-done"]',
+  connectionSnooze: '[data-testid="sh-today-connection-snooze"]',
+  upcomingDate: '[data-testid="sh-today-upcoming-date"]',
+
   /** Derived streak line at the foot of the page */
   streaks: 'p.streaks',
 } as const;

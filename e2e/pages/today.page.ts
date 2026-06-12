@@ -32,6 +32,13 @@ export class TodayPage extends BasePage {
   readonly markReadButton: Locator;
   readonly readingDone: Locator;
 
+  readonly connectionCard: Locator;
+  readonly connectionPrompt: Locator;
+  readonly connectionText: Locator;
+  readonly connectionDone: Locator;
+  readonly connectionSnooze: Locator;
+  readonly upcomingDate: Locator;
+
   readonly streaks: Locator;
 
   constructor(page: Page) {
@@ -56,6 +63,13 @@ export class TodayPage extends BasePage {
     this.readingLink = page.locator(S.readingLink);
     this.markReadButton = page.locator(S.markReadButton);
     this.readingDone = page.locator(S.readingDone);
+
+    this.connectionCard = page.locator(S.connectionCard);
+    this.connectionPrompt = page.locator(S.connectionPrompt);
+    this.connectionText = page.locator(S.connectionText);
+    this.connectionDone = page.locator(S.connectionDone);
+    this.connectionSnooze = page.locator(S.connectionSnooze);
+    this.upcomingDate = page.locator(S.upcomingDate);
 
     this.streaks = page.locator(S.streaks);
   }

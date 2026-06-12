@@ -15,6 +15,8 @@ import { APIRequestContext, expect, test as base } from '@playwright/test';
 
 import { FastDetailPage } from '../pages/fast-detail.page';
 import { HealthPage } from '../pages/health.page';
+import { PeoplePage } from '../pages/people.page';
+import { PersonDetailPage } from '../pages/person-detail.page';
 import { SignInPage } from '../pages/sign-in.page';
 import { TodayPage } from '../pages/today.page';
 import { SEEDED_USER } from './users';
@@ -26,6 +28,8 @@ interface Pages {
   today: TodayPage;
   health: HealthPage;
   fastDetail: FastDetailPage;
+  people: PeoplePage;
+  personDetail: PersonDetailPage;
 }
 
 export interface TodayReading {
@@ -79,6 +83,25 @@ export interface MealRow {
   text: string;
   tags: string[];
   occurredAt: string;
+}
+
+export interface PersonRow {
+  id: string;
+  name: string;
+  relationship: string | null;
+  phone: string | null;
+  contactCadenceDays: number | null;
+  notes: string | null;
+  lastContactedOn: string | null;
+  snoozedUntil: string | null;
+}
+
+export interface NudgeRow {
+  personId: string;
+  name: string;
+  relationship: string | null;
+  prompt: string;
+  phone: string | null;
 }
 
 /** `yyyy-MM-dd` in the runner's local timezone (matches the server's Toronto day on this machine). */
@@ -189,6 +212,61 @@ export class ShalomApi {
     if (!res.ok()) throw new Error(`GET /api/meals failed (${res.status()}).`);
     return (await res.json()) as MealRow[];
   }
+
+  async listPeople(): Promise<PersonRow[]> {
+    const res = await this.request.get(`${API_URL}/api/people`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok()) throw new Error(`GET /api/people failed (${res.status()}).`);
+    return (await res.json()) as PersonRow[];
+  }
+
+  async createPerson(data: {
+    name: string;
+    relationship?: string;
+    phone?: string;
+    contactCadenceDays?: number;
+  }): Promise<PersonRow> {
+    const res = await this.request.post(`${API_URL}/api/people`, {
+      headers: await this.bearer(),
+      data,
+    });
+    if (!res.ok()) throw new Error(`POST /api/people failed (${res.status()}).`);
+    return (await res.json()) as PersonRow;
+  }
+
+  /** DELETE = archive (soft); repeat-safe teardown for test-created people. */
+  async archivePerson(id: string): Promise<void> {
+    const res = await this.request.delete(`${API_URL}/api/people/${id}`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok() && res.status() !== 404) {
+      throw new Error(`DELETE person ${id} failed (${res.status()}).`);
+    }
+  }
+
+  /** Archives every active person — a clean slate for nudge determinism. */
+  async archiveAllPeople(): Promise<void> {
+    for (const person of await this.listPeople()) {
+      await this.archivePerson(person.id);
+    }
+  }
+
+  async recordContact(id: string): Promise<PersonRow> {
+    const res = await this.request.post(`${API_URL}/api/people/${id}/contact`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok()) throw new Error(`POST /api/people/${id}/contact failed (${res.status()}).`);
+    return (await res.json()) as PersonRow;
+  }
+
+  async nudges(): Promise<NudgeRow[]> {
+    const res = await this.request.get(`${API_URL}/api/people/nudges`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok()) throw new Error(`GET /api/people/nudges failed (${res.status()}).`);
+    return (await res.json()) as NudgeRow[];
+  }
 }
 
 interface ShFixtures {
@@ -204,6 +282,8 @@ export const test = base.extend<ShFixtures>({
       today: new TodayPage(page),
       health: new HealthPage(page),
       fastDetail: new FastDetailPage(page),
+      people: new PeoplePage(page),
+      personDetail: new PersonDetailPage(page),
     });
   },
   api: async ({ request }, use) => {
