@@ -1,0 +1,149 @@
+[
+  {
+    "name": "John & His Letters",
+    "startDate": "2026-06-15",
+    "isActive": true,
+    "days": [
+      {
+        "dayNumber": 1,
+        "passageReference": "John 1",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.1"
+      },
+      {
+        "dayNumber": 2,
+        "passageReference": "John 2",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.2"
+      },
+      {
+        "dayNumber": 3,
+        "passageReference": "John 3",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.3"
+      },
+      {
+        "dayNumber": 4,
+        "passageReference": "John 4",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.4"
+      },
+      {
+        "dayNumber": 5,
+        "passageReference": "John 5",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.5"
+      },
+      {
+        "dayNumber": 6,
+        "passageReference": "John 6",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.6"
+      },
+      {
+        "dayNumber": 7,
+        "passageReference": "John 7",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.7"
+      },
+      {
+        "dayNumber": 8,
+        "passageReference": "John 8",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.8"
+      },
+      {
+        "dayNumber": 9,
+        "passageReference": "John 9",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.9"
+      },
+      {
+        "dayNumber": 10,
+        "passageReference": "John 10",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.10"
+      },
+      {
+        "dayNumber": 11,
+        "passageReference": "John 11",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.11"
+      },
+      {
+        "dayNumber": 12,
+        "passageReference": "John 12",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.12"
+      },
+      {
+        "dayNumber": 13,
+        "passageReference": "John 13",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.13"
+      },
+      {
+        "dayNumber": 14,
+        "passageReference": "John 14",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.14"
+      },
+      {
+        "dayNumber": 15,
+        "passageReference": "John 15",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.15"
+      },
+      {
+        "dayNumber": 16,
+        "passageReference": "John 16",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.16"
+      },
+      {
+        "dayNumber": 17,
+        "passageReference": "John 17",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.17"
+      },
+      {
+        "dayNumber": 18,
+        "passageReference": "John 18",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.18"
+      },
+      {
+        "dayNumber": 19,
+        "passageReference": "John 19",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.19"
+      },
+      {
+        "dayNumber": 20,
+        "passageReference": "John 20",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.20"
+      },
+      {
+        "dayNumber": 21,
+        "passageReference": "John 21",
+        "youVersionUrl": "https://www.bible.com/bible/111/JHN.21"
+      },
+      {
+        "dayNumber": 22,
+        "passageReference": "1 John 1",
+        "youVersionUrl": "https://www.bible.com/bible/111/1JN.1"
+      },
+      {
+        "dayNumber": 23,
+        "passageReference": "1 John 2",
+        "youVersionUrl": "https://www.bible.com/bible/111/1JN.2"
+      },
+      {
+        "dayNumber": 24,
+        "passageReference": "1 John 3",
+        "youVersionUrl": "https://www.bible.com/bible/111/1JN.3"
+      },
+      {
+        "dayNumber": 25,
+        "passageReference": "1 John 4",
+        "youVersionUrl": "https://www.bible.com/bible/111/1JN.4"
+      },
+      {
+        "dayNumber": 26,
+        "passageReference": "1 John 5",
+        "youVersionUrl": "https://www.bible.com/bible/111/1JN.5"
+      },
+      {
+        "dayNumber": 27,
+        "passageReference": "2 John 1",
+        "youVersionUrl": "https://www.bible.com/bible/111/2JN.1"
+      },
+      {
+        "dayNumber": 28,
+        "passageReference": "3 John 1",
+        "youVersionUrl": "https://www.bible.com/bible/111/3JN.1"
+      }
+    ]
+  }
+]

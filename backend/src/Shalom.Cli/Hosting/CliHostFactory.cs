@@ -53,6 +53,8 @@ public static class CliHostFactory
                 services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
                 services.AddSingleton<ISeedPathResolver, SeedPathResolver>();
                 services.AddSingleton<IJsonSeeder, UserSeeder>();
+                services.AddSingleton<IJsonSeeder, VerseSeeder>();
+                services.AddSingleton<IJsonSeeder, ReadingPlanSeeder>();
                 services.AddScoped<SeedCommandHandler>();
                 services.AddScoped<MigrateCommandHandler>();
                 services.AddScoped<ResetCommandHandler>();

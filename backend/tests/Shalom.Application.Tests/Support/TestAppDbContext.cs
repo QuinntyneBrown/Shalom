@@ -16,4 +16,21 @@ internal sealed class TestAppDbContext : DbContext, IAppDbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<DailyCheckIn> DailyCheckIns => Set<DailyCheckIn>();
+    public DbSet<ReadingPlan> ReadingPlans => Set<ReadingPlan>();
+    public DbSet<ReadingPlanDay> ReadingPlanDays => Set<ReadingPlanDay>();
+    public DbSet<VerseOfDay> VersesOfDay => Set<VerseOfDay>();
+    public DbSet<Workout> Workouts => Set<Workout>();
+    public DbSet<FastingSession> FastingSessions => Set<FastingSession>();
+    public DbSet<FastingSchedule> FastingSchedules => Set<FastingSchedule>();
+    public DbSet<Person> People => Set<Person>();
+    public DbSet<GratitudeEntry> GratitudeEntries => Set<GratitudeEntry>();
+    public DbSet<ImportantDate> ImportantDates => Set<ImportantDate>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // FastingScheduleOverride is an owned type (configured in Infrastructure
+        // for the real context); mirror just enough here for the in-memory model.
+        modelBuilder.Entity<FastingSchedule>().OwnsMany(s => s.Overrides);
+    }
 }
