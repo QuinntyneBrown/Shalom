@@ -32,7 +32,7 @@ const GROUPS: readonly EverythingGroup[] = [
     label: 'Health',
     rows: [
       { icon: 'timer', title: 'Fasting', sub: '16:8 with Sunday grace', pill: null },
-      { icon: 'fitness_center', title: 'Workouts', sub: 'Treadmill, bike, elliptical', pill: null },
+      { icon: 'fitness_center', title: 'Workouts', sub: 'Treadmill, bike, elliptical, outdoor walks & runs', pill: null },
       { icon: 'restaurant', title: 'Meal notes', sub: 'Patterns, not calories', pill: null },
       { icon: 'monitoring', title: 'Trends', sub: 'What helps, gently', pill: 'week 3' },
     ],

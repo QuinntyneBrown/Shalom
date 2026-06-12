@@ -3,7 +3,7 @@ import { Locator, Page } from '@playwright/test';
 import { healthPageSelectors as S } from '../helpers/health-page.selectors';
 import { BasePage } from './base.page';
 
-export type MachineLabel = 'Treadmill' | 'Bike' | 'Elliptical';
+export type MachineLabel = 'Treadmill' | 'Bike' | 'Elliptical' | 'Outdoor walk' | 'Outdoor run';
 
 /**
  * Health page (`/health`) — fasting summary card with the live ring,
@@ -86,6 +86,8 @@ export class HealthPage extends BasePage {
       Treadmill: S.workoutChipTreadmill,
       Bike: S.workoutChipBike,
       Elliptical: S.workoutChipElliptical,
+      'Outdoor walk': S.workoutChipOutdoorWalk,
+      'Outdoor run': S.workoutChipOutdoorRun,
     }[machine];
     return this.page.locator(selector);
   }
@@ -96,6 +98,8 @@ export class HealthPage extends BasePage {
       Treadmill: S.sheetMachineTreadmill,
       Bike: S.sheetMachineBike,
       Elliptical: S.sheetMachineElliptical,
+      'Outdoor walk': S.sheetMachineOutdoorWalk,
+      'Outdoor run': S.sheetMachineOutdoorRun,
     }[machine];
     return this.page.locator(selector);
   }

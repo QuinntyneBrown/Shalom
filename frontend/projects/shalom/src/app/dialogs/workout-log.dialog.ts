@@ -42,7 +42,13 @@ export class WorkoutLogDialog {
   private readonly ref = inject<DialogRef<WorkoutDto | undefined>>(DialogRef);
   private readonly data = inject<WorkoutLogData>(DIALOG_DATA);
 
-  protected readonly machines: readonly EquipmentType[] = ['Treadmill', 'IndoorBike', 'Elliptical'];
+  protected readonly machines: readonly EquipmentType[] = [
+    'Treadmill',
+    'IndoorBike',
+    'Elliptical',
+    'OutdoorWalk',
+    'OutdoorRun',
+  ];
   protected readonly labels = EQUIPMENT_LABELS;
   protected readonly efforts: readonly Effort[] = ['easy', 'steady', 'strong'];
 

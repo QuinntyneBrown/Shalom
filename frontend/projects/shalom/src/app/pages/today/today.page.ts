@@ -188,7 +188,11 @@ export class TodayPage implements OnInit, OnDestroy {
     const intention = this.intention();
     if (intention === 'Rest') return 'Rest today — that counts too.';
     if (intention) {
-      const noun = intention === 'IndoorBike' ? 'ride' : 'session';
+      const noun =
+        intention === 'IndoorBike' ? 'ride'
+        : intention === 'OutdoorWalk' ? 'walk'
+        : intention === 'OutdoorRun' ? 'run'
+        : 'session';
       return `A 20-minute ${noun} is still on the table — no pressure.`;
     }
     return 'Twenty easy minutes, whenever it fits.';
@@ -196,6 +200,8 @@ export class TodayPage implements OnInit, OnDestroy {
 
   protected readonly eveningMovementLine = computed(() => {
     const intention = this.intention();
+    if (intention === 'OutdoorWalk') return 'Still time for a 20-minute walk outside?';
+    if (intention === 'OutdoorRun') return 'Still time for a 20-minute run outside?';
     const label =
       intention && intention !== 'Rest' ? intentionLabel(intention).toLowerCase() : 'bike';
     return `Still time for 20 minutes on the ${label}?`;
