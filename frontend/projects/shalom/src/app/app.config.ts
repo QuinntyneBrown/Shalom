@@ -15,12 +15,18 @@ import {
   AuthService,
   CHECK_INS_SERVICE,
   CheckInsService,
+  FASTING_SERVICE,
+  FastingService,
+  MEALS_SERVICE,
+  MealsService,
   READING_SERVICE,
   ReadingService,
   SESSION_STORE,
   SessionStore,
   TODAY_SERVICE,
   TodayService,
+  WORKOUTS_SERVICE,
+  WorkoutsService,
 } from 'api';
 
 import { environment } from '../environments/environment';
@@ -47,5 +53,10 @@ export const appConfig: ApplicationConfig = {
     { provide: TODAY_SERVICE, useExisting: TodayService },
     { provide: CHECK_INS_SERVICE, useExisting: CheckInsService },
     { provide: READING_SERVICE, useExisting: ReadingService },
+
+    // Health slice — fasting, workouts, meals.
+    { provide: FASTING_SERVICE, useExisting: FastingService },
+    { provide: WORKOUTS_SERVICE, useExisting: WorkoutsService },
+    { provide: MEALS_SERVICE, useExisting: MealsService },
   ],
 };

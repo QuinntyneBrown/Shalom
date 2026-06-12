@@ -1,0 +1,96 @@
+// Shared chrome for bottom-sheet dialog components. Each sheet's :host
+// carries the sheet surface; the CDK pane only positions it.
+
+@mixin sheet-host {
+  display: block;
+  background: var(--sh-surface-elev);
+  border-radius: var(--sh-r-xl) var(--sh-r-xl) 0 0;
+  box-shadow: var(--sh-shadow-3);
+  padding: 12px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+@mixin sheet-grab {
+  width: 64px;
+  height: 5px;
+  margin: 0 auto 16px;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-surface-2);
+}
+
+@mixin sheet-title {
+  margin: 0 0 16px;
+  font-family: var(--sh-font-display);
+  font-size: var(--sh-fs-xl);
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--sh-ink);
+}
+
+@mixin sheet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-pill);
+  background: transparent;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-soft);
+  cursor: pointer;
+  transition:
+    background var(--sh-dur-fast) var(--sh-ease),
+    color var(--sh-dur-fast) var(--sh-ease),
+    border-color var(--sh-dur-fast) var(--sh-ease);
+
+  &:hover {
+    border-color: var(--sh-primary);
+    color: var(--sh-primary);
+  }
+
+  &.selected {
+    background: var(--sh-primary-container);
+    border-color: var(--sh-primary-container);
+    color: var(--sh-on-primary-container);
+    font-weight: var(--sh-fw-semibold);
+  }
+}
+
+@mixin sheet-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-surface);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-base);
+  color: var(--sh-ink);
+
+  &::placeholder {
+    color: var(--sh-ink-faint);
+  }
+
+  &:focus {
+    outline: 2px solid var(--sh-primary);
+    outline-offset: -1px;
+  }
+}
+
+@mixin sheet-save {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-primary);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-on-primary);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}

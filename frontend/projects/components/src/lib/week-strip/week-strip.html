@@ -1,0 +1,14 @@
+<div class="days">
+  @for (day of days(); track $index) {
+    <div class="day">
+      <span class="label">{{ day.label }}</span>
+      <span class="dot" [class]="'dot ' + day.state"></span>
+    </div>
+  }
+</div>
+
+<div class="legend">
+  <span class="key"><span class="dot done"></span> done</span>
+  <span class="key"><span class="dot grace"></span> grace</span>
+  <span class="key"><span class="dot ahead"></span> ahead</span>
+</div>

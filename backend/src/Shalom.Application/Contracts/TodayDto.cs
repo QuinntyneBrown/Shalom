@@ -14,4 +14,6 @@ public record TodayDto(
     CheckInDto? CheckIn,
     VerseDto Verse,
     TodayReadingDto? Reading,
-    TodayStreaksDto Streaks);
+    TodayStreaksDto Streaks,
+    TodayFastingDto Fasting,
+    TodayHealthDto Health);

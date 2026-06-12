@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 import {
   CHECK_INS_SERVICE,
@@ -14,27 +16,31 @@ import {
   TODAY_SERVICE,
   TodayDto,
 } from 'api';
-import { DotScale, RatingChips, ReadingCard, VerseCard } from 'components';
+import { DotScale, ProgressRing, RatingChips, ReadingCard, VerseCard } from 'components';
+
+import { formatElapsed, formatWindowTime } from '../../shared/health-format';
 
 /**
  * Today pillar — the morning surface.
  *
  * Loads `GET /api/today` once into a signal and renders greeting + date,
  * the verse card, a compact check-in card (mood chips, closeness dots,
- * optional note), and the reading card. Saving a check-in upserts today's
- * row server-side (no date leaves the client, ADR-004) and patches the
- * signal; marking the reading done refetches the aggregate so completion,
- * counts, and streaks stay authoritative.
+ * optional note), the reading card, and a compact fasting card (mini ring
+ * with live elapsed + window line; the full Today composition is M6).
+ * Saving a check-in upserts today's row server-side (no date leaves the
+ * client, ADR-004) and patches the signal; marking the reading done
+ * refetches the aggregate so completion, counts, and streaks stay
+ * authoritative.
  */
 @Component({
   selector: 'app-today',
   standalone: true,
-  imports: [DatePipe, DotScale, RatingChips, ReadingCard, VerseCard],
+  imports: [DatePipe, DotScale, ProgressRing, RatingChips, ReadingCard, RouterLink, VerseCard],
   templateUrl: './today.page.html',
   styleUrl: './today.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TodayPage implements OnInit {
+export class TodayPage implements OnInit, OnDestroy {
   private readonly todayService = inject(TODAY_SERVICE);
   private readonly checkIns = inject(CHECK_INS_SERVICE);
   private readonly reading = inject(READING_SERVICE);
@@ -51,8 +57,42 @@ export class TodayPage implements OnInit {
     () => this.mood() !== null && this.spiritual() !== null && !this.saving(),
   );
 
+  /** 1s heartbeat for the fasting card's live elapsed. */
+  protected readonly now = signal(Date.now());
+  private tick: ReturnType<typeof setInterval> | null = null;
+
+  protected readonly fastElapsed = computed(() => {
+    const current = this.today()?.fasting.current;
+    return current ? formatElapsed(this.now() - Date.parse(current.startedAt)) : null;
+  });
+
+  protected readonly fastProgress = computed(() => {
+    const current = this.today()?.fasting.current;
+    if (!current) return 0;
+    const targetMs = current.targetHours * 3_600_000;
+    return targetMs > 0 ? (this.now() - Date.parse(current.startedAt)) / targetMs : 0;
+  });
+
+  protected readonly fastWindowLine = computed(() => {
+    const fasting = this.today()?.fasting;
+    if (!fasting) return '';
+    return fasting.windowOpen
+      ? `Window open until ${formatWindowTime(fasting.todayWindow.end)}`
+      : `Window opens at ${formatWindowTime(fasting.todayWindow.start)}`;
+  });
+
+  protected readonly fastRatio = computed(() => {
+    const fasting = this.today()?.fasting;
+    return fasting ? `${fasting.targetHours}:${24 - fasting.targetHours}` : '';
+  });
+
   ngOnInit(): void {
+    this.tick = setInterval(() => this.now.set(Date.now()), 1_000);
     void this.load();
+  }
+
+  ngOnDestroy(): void {
+    if (this.tick !== null) clearInterval(this.tick);
   }
 
   protected async saveCheckIn(): Promise<void> {

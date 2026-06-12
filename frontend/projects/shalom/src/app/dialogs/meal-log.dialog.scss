@@ -1,0 +1,40 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  margin: 0 0 16px;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+}
+
+.text {
+  @include sheet.sheet-input;
+  margin-bottom: 16px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.chip {
+  @include sheet.sheet-chip;
+}
+
+.save {
+  @include sheet.sheet-save;
+}

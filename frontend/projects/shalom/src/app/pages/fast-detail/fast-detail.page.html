@@ -1,0 +1,61 @@
+<header class="page-head">
+  <a
+    class="back"
+    routerLink="/health"
+    aria-label="Back to Health"
+    data-testid="sh-fast-back"
+  ><span class="material-symbols-rounded" aria-hidden="true">arrow_back</span></a>
+  <h1>Fasting</h1>
+</header>
+
+@if (fast(); as f) {
+  <section class="hero" aria-label="Current fast">
+    <sh-progress-ring [progress]="progress()" [size]="220" [stroke]="16" data-testid="sh-fast-ring">
+      @if (elapsedLabel(); as elapsed) {
+        <strong class="elapsed" data-testid="sh-fast-elapsed">{{ elapsed }}</strong>
+        <span class="target">{{ targetLine() }}</span>
+      } @else {
+        <strong class="elapsed quiet" data-testid="sh-fast-none">No fast running</strong>
+        <span class="target">Tonight starts fresh</span>
+      }
+    </sh-progress-ring>
+
+    @if (startedLine(); as started) {
+      <p class="started" data-testid="sh-fast-started">{{ started }}</p>
+    }
+    <p class="window" data-testid="sh-fast-window">{{ windowLine() }}</p>
+
+    @if (current()) {
+      <button
+        type="button"
+        class="end-fast"
+        data-testid="sh-fast-end"
+        [disabled]="ending()"
+        (click)="endFast()"
+      >{{ ending() ? 'Ending…' : 'End fast here' }}</button>
+    }
+  </section>
+
+  <section class="card schedule" data-testid="sh-fast-schedule" aria-label="Schedule">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">edit_calendar</span>
+      <h2>Schedule</h2>
+      <span class="meta">{{ ratio() }}</span>
+    </div>
+
+    <div class="row" data-testid="sh-schedule-default">
+      <span class="day">{{ defaultLabel() }}</span>
+      <span class="hours">{{ defaultWindow() }}</span>
+    </div>
+    @for (o of overrides(); track o.dayOfWeek) {
+      <div class="row override" [attr.data-testid]="'sh-schedule-' + o.dayOfWeek.toLowerCase()">
+        <span class="day">{{ overrideLabel(o) }}</span>
+        <span class="hours">{{ overrideWindow(o) }}</span>
+      </div>
+    }
+
+    <p class="note">Sunday lunch after church is part of the rhythm — not a break.</p>
+  </section>
+} @else {
+  <p class="loading">Loading your fast…</p>
+}

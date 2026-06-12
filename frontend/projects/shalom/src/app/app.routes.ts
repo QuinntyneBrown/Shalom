@@ -9,8 +9,8 @@ import { requireAuth } from './auth/require-auth.guard';
  * - `/` redirects to `/today`, the default pillar.
  * - `/sign-in` is the only public surface; signed-in visitors are bounced
  *   back to `/today` by `requireAnonymous`.
- * - The four app surfaces (`/today`, `/health`, `/people`, `/settings`)
- *   are all guarded by `requireAuth`.
+ * - The app surfaces (`/today`, `/health`, `/health/fasting`, `/people`,
+ *   `/settings`) are all guarded by `requireAuth`.
  * - `**` lands on the not-found page.
  */
 export const routes: Routes = [
@@ -37,6 +37,12 @@ export const routes: Routes = [
     canActivate: [requireAuth],
     loadComponent: () =>
       import('./pages/health/health.page').then((m) => m.HealthPage),
+  },
+  {
+    path: 'health/fasting',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/fast-detail/fast-detail.page').then((m) => m.FastDetailPage),
   },
   {
     path: 'people',

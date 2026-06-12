@@ -1,0 +1,60 @@
+:host {
+  display: block;
+}
+
+.days {
+  display: flex;
+  justify-content: space-between;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.label {
+  font-size: var(--sh-fs-xs);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-ink-soft);
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+
+  &.done {
+    background: var(--sh-primary);
+  }
+
+  // Today-in-progress: a warm gold outline, never an accusation.
+  &.grace {
+    background: var(--sh-surface-2);
+    box-shadow: inset 0 0 0 2px var(--sh-tertiary);
+  }
+
+  &.ahead {
+    background: var(--sh-surface-2);
+  }
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+
+  .key {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--sh-fs-xs);
+    color: var(--sh-ink-soft);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+  }
+}

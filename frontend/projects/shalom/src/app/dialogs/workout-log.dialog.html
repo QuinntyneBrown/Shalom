@@ -1,0 +1,71 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Log a workout</h2>
+
+<div class="machines" role="group" aria-label="Machine">
+  @for (machine of machines; track machine) {
+    <button
+      type="button"
+      class="chip"
+      [class.selected]="equipment() === machine"
+      [attr.aria-pressed]="equipment() === machine"
+      [attr.data-testid]="'sh-sheet-machine-' + machine.toLowerCase()"
+      (click)="selectMachine(machine)"
+    >{{ labels[machine] }}</button>
+  }
+</div>
+
+<div class="row">
+  <span class="label">Duration</span>
+  <div class="stepper">
+    <button
+      type="button"
+      class="step"
+      aria-label="Less time"
+      data-testid="sh-sheet-duration-minus"
+      (click)="step(-5)"
+    >−</button>
+    <span class="minutes" data-testid="sh-sheet-duration">{{ duration() }} min</span>
+    <button
+      type="button"
+      class="step"
+      aria-label="More time"
+      data-testid="sh-sheet-duration-plus"
+      (click)="step(5)"
+    >+</button>
+  </div>
+</div>
+
+<div class="row">
+  <span class="label">Effort</span>
+  <div class="efforts" role="group" aria-label="Effort">
+    @for (e of efforts; track e) {
+      <button
+        type="button"
+        class="chip"
+        [class.selected]="effort() === e"
+        [attr.aria-pressed]="effort() === e"
+        [attr.data-testid]="'sh-sheet-effort-' + e"
+        (click)="selectEffort(e)"
+      >{{ e[0].toUpperCase() + e.slice(1) }}</button>
+    }
+  </div>
+</div>
+
+<input
+  class="note"
+  type="text"
+  name="note"
+  maxlength="400"
+  placeholder="Anything to remember? (optional)"
+  autocomplete="off"
+  [value]="note()"
+  (input)="onNoteInput($event)"
+/>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-workout"
+  [disabled]="!canSave()"
+  (click)="save()"
+>{{ saving() ? 'Saving…' : 'Save workout' }}</button>

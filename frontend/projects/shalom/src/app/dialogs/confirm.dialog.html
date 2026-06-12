@@ -1,0 +1,18 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">{{ data.title }}</h2>
+<p class="message">{{ data.message }}</p>
+
+<div class="actions">
+  <button
+    type="button"
+    class="cancel"
+    data-testid="sh-confirm-cancel"
+    (click)="cancel()"
+  >{{ data.cancelLabel }}</button>
+  <button
+    type="button"
+    class="confirm"
+    data-testid="sh-confirm-accept"
+    (click)="confirm()"
+  >{{ data.confirmLabel }}</button>
+</div>

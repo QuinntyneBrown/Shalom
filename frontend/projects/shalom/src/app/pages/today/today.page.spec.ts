@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import {
   CHECK_INS_SERVICE,
@@ -32,7 +33,23 @@ const baseToday: TodayDto = {
     completedCount: 0,
     totalDays: 28,
   },
-  streaks: { checkInCurrent: 0, checkInLongest: 0, readingCurrent: 0, readingLongest: 0 },
+  streaks: {
+    checkInCurrent: 0,
+    checkInLongest: 0,
+    readingCurrent: 0,
+    readingLongest: 0,
+    fastingCurrent: 0,
+    fastingLongest: 0,
+    movementCurrent: 0,
+    movementLongest: 0,
+  },
+  fasting: {
+    current: null,
+    todayWindow: { start: '12:00:00', end: '20:00:00' },
+    windowOpen: false,
+    targetHours: 16,
+  },
+  health: { todaysWorkouts: [], lastMeal: null },
 };
 
 describe('TodayPage', () => {
@@ -89,6 +106,7 @@ describe('TodayPage', () => {
     await TestBed.configureTestingModule({
       imports: [TodayPage],
       providers: [
+        provideRouter([]),
         { provide: TODAY_SERVICE, useValue: todayMock },
         { provide: CHECK_INS_SERVICE, useValue: checkInsMock },
         { provide: READING_SERVICE, useValue: readingMock },
@@ -159,6 +177,48 @@ describe('TodayPage', () => {
     expect(dots[2].classList.contains('selected')).toBe(true);
     expect((el.querySelector('input.note') as HTMLInputElement).value).toBe('calm');
     expect(el.querySelector('.saved-badge')).not.toBeNull();
+  });
+
+  it('renders the compact fasting card with the window line', async () => {
+    await setup({
+      ...baseToday,
+      fasting: {
+        current: {
+          id: 'fast-1',
+          startedAt: new Date(Date.now() - 11.4 * 3_600_000).toISOString(),
+          targetHours: 16,
+          endedAt: null,
+          elapsedHours: 11.4,
+          outcome: null,
+        },
+        todayWindow: { start: '11:00:00', end: '19:00:00' },
+        windowOpen: false,
+        targetHours: 16,
+      },
+    });
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('[data-testid="sh-today-fasting-elapsed"]')?.textContent).toContain('11h');
+    expect(el.querySelector('[data-testid="sh-today-fasting-window"]')?.textContent).toContain(
+      'Window opens at 11:00',
+    );
+    expect(el.querySelector('.fasting-card .ratio')?.textContent).toBe('16:8');
+    expect(el.querySelector('.fasting-card sh-progress-ring')).not.toBeNull();
+  });
+
+  it('shows the quiet not-fasting state when no fast is open', async () => {
+    await setup({
+      ...baseToday,
+      fasting: { ...baseToday.fasting, windowOpen: true },
+    });
+    const el: HTMLElement = fixture.nativeElement;
+
+    expect(el.querySelector('[data-testid="sh-today-fasting-elapsed"]')?.textContent?.trim()).toBe(
+      'Not fasting',
+    );
+    expect(el.querySelector('[data-testid="sh-today-fasting-window"]')?.textContent).toContain(
+      'Window open until 20:00',
+    );
   });
 
   it('marking the reading read completes the day and refreshes the aggregate', async () => {

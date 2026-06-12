@@ -23,6 +23,7 @@ internal sealed class TestAppDbContext : DbContext, IAppDbContext
     public DbSet<Workout> Workouts => Set<Workout>();
     public DbSet<FastingSession> FastingSessions => Set<FastingSession>();
     public DbSet<FastingSchedule> FastingSchedules => Set<FastingSchedule>();
+    public DbSet<MealEntry> MealEntries => Set<MealEntry>();
     public DbSet<Person> People => Set<Person>();
     public DbSet<GratitudeEntry> GratitudeEntries => Set<GratitudeEntry>();
     public DbSet<ImportantDate> ImportantDates => Set<ImportantDate>();

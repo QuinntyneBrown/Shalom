@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.label {
+  font-size: var(--sh-fs-base);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-ink);
+}
+
+.value {
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+}
+
+.meta {
+  margin-left: auto;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-faint);
+}

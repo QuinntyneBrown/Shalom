@@ -16,6 +16,7 @@ public interface IAppDbContext
     DbSet<Workout> Workouts { get; }
     DbSet<FastingSession> FastingSessions { get; }
     DbSet<FastingSchedule> FastingSchedules { get; }
+    DbSet<MealEntry> MealEntries { get; }
     DbSet<Person> People { get; }
     DbSet<GratitudeEntry> GratitudeEntries { get; }
     DbSet<ImportantDate> ImportantDates { get; }

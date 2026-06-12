@@ -98,6 +98,65 @@
   }
 }
 
+.fasting-card {
+  display: block;
+  background: var(--sh-surface-elev);
+  border: 1px solid var(--sh-line);
+  border-radius: var(--sh-r-xl);
+  box-shadow: var(--sh-shadow-1);
+  padding: 16px 20px;
+  text-decoration: none;
+  color: inherit;
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .icon {
+      font-size: 18px;
+      color: var(--sh-primary);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: var(--sh-fs-md);
+    }
+
+    .ratio {
+      margin-left: auto;
+      font-size: var(--sh-fs-sm);
+      color: var(--sh-ink-soft);
+    }
+  }
+
+  .body {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .elapsed {
+    margin: 0;
+    font-family: var(--sh-font-display);
+    font-size: var(--sh-fs-lg);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-ink);
+
+    &.quiet {
+      font-size: var(--sh-fs-base);
+      color: var(--sh-ink-soft);
+    }
+  }
+
+  .window {
+    margin: 2px 0 0;
+    font-size: var(--sh-fs-sm);
+    color: var(--sh-ink-soft);
+  }
+}
+
 .streaks {
   margin: 4px 0 0;
   font-size: var(--sh-fs-xs);

@@ -30,7 +30,23 @@ const todayDto: TodayDto = {
     completedCount: 0,
     totalDays: 28,
   },
-  streaks: { checkInCurrent: 0, checkInLongest: 0, readingCurrent: 0, readingLongest: 0 },
+  streaks: {
+    checkInCurrent: 0,
+    checkInLongest: 0,
+    readingCurrent: 0,
+    readingLongest: 0,
+    fastingCurrent: 0,
+    fastingLongest: 0,
+    movementCurrent: 0,
+    movementLongest: 0,
+  },
+  fasting: {
+    current: null,
+    todayWindow: { start: '12:00:00', end: '20:00:00' },
+    windowOpen: false,
+    targetHours: 16,
+  },
+  health: { todaysWorkouts: [], lastMeal: null },
 };
 
 describe('TodayService', () => {

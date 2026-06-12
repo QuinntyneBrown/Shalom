@@ -3,11 +3,13 @@
 Playwright end-to-end tests for the Shalom stack (Angular on :4200 + .NET API
 on :5100), Page Object Model layout (saturdaze precedent):
 
-- `pages/` — page objects (`sign-in.page.ts`, `today.page.ts`, `base.page.ts`)
-- `helpers/` — per-page selector maps
+- `pages/` — page objects (`sign-in.page.ts`, `today.page.ts`,
+  `health.page.ts`, `fast-detail.page.ts`, `base.page.ts`)
+- `helpers/` — per-page selector maps (+ `dates.ts` local-date helpers)
 - `fixtures/` — the `test` fixture (`sh-test.ts`: POMs + authenticated API
   helper) and seeded credentials (`users.ts`)
-- `tests/` — hand-written specs (`auth`, `check-in`, `reading`)
+- `tests/` — hand-written specs (`auth`, `check-in`, `reading`, `fasting`,
+  `workouts`, `meals`)
 - `scripts/prepare.mjs` — database prep (see below)
 
 ## Running
@@ -48,9 +50,12 @@ dotenv dependency) and passes `SHALOM_CONNECTION` +
 servers use `reuseExistingServer: true`, so an already-running stack (e.g.
 from `scripts/Start-FreshStack.ps1`) is picked up as-is.
 
-Specs are repeat-safe: the check-in upsert is idempotent per local day, and
+Specs are repeat-safe: the check-in upsert is idempotent per local day,
 `reading.spec.ts` uncompletes today's surfaced reading through the API
-before driving the UI.
+before driving the UI, `fasting.spec.ts` ends any open fast first (fasts
+are started via the API — the design has no start button), and
+`workouts.spec.ts` deletes the workout it created in teardown. Meals have
+no delete endpoint; `meals.spec.ts` asserts on a per-run unique text.
 
 ## Regenerating POM infrastructure
 

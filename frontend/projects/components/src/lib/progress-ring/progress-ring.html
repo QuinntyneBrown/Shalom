@@ -1,0 +1,31 @@
+<div
+  class="ring"
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="1"
+  [attr.aria-valuenow]="clamped()"
+  [style.width.px]="size()"
+  [style.height.px]="size()"
+>
+  <svg [attr.viewBox]="'0 0 ' + size() + ' ' + size()" aria-hidden="true">
+    <circle
+      class="track"
+      [attr.cx]="size() / 2"
+      [attr.cy]="size() / 2"
+      [attr.r]="radius()"
+      [attr.stroke-width]="strokeWidth()"
+    />
+    <circle
+      class="arc"
+      [attr.cx]="size() / 2"
+      [attr.cy]="size() / 2"
+      [attr.r]="radius()"
+      [attr.stroke-width]="strokeWidth()"
+      [attr.stroke-dasharray]="circumference()"
+      [attr.stroke-dashoffset]="dashOffset()"
+    />
+  </svg>
+  <div class="center">
+    <ng-content />
+  </div>
+</div>

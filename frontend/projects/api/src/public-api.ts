@@ -40,12 +40,32 @@ export * from './lib/models/today-reading-dto';
 export * from './lib/models/today-streaks-dto';
 export * from './lib/models/today-dto';
 
+// Health models (fasting / workouts / meals)
+export * from './lib/models/fasting-session-dto';
+export * from './lib/models/fasting-override-dto';
+export * from './lib/models/today-window-dto';
+export * from './lib/models/fasting-schedule-dto';
+export * from './lib/models/current-fast-dto';
+export * from './lib/models/start-fast-request';
+export * from './lib/models/update-fasting-schedule-request';
+export * from './lib/models/equipment-type';
+export * from './lib/models/workout-dto';
+export * from './lib/models/log-workout-request';
+export * from './lib/models/meal-tag';
+export * from './lib/models/meal-entry-dto';
+export * from './lib/models/log-meal-request';
+export * from './lib/models/today-fasting-dto';
+export * from './lib/models/today-health-dto';
+
 // Service contracts (interface + InjectionToken)
 export * from './lib/services/auth.service.contract';
 export * from './lib/services/session-store.contract';
 export * from './lib/services/today.service.contract';
 export * from './lib/services/check-ins.service.contract';
 export * from './lib/services/reading.service.contract';
+export * from './lib/services/fasting.service.contract';
+export * from './lib/services/workouts.service.contract';
+export * from './lib/services/meals.service.contract';
 
 // Concrete implementations (imported only by composition roots)
 export * from './lib/services/auth.service';
@@ -53,3 +73,6 @@ export * from './lib/services/session-store';
 export * from './lib/services/today.service';
 export * from './lib/services/check-ins.service';
 export * from './lib/services/reading.service';
+export * from './lib/services/fasting.service';
+export * from './lib/services/workouts.service';
+export * from './lib/services/meals.service';

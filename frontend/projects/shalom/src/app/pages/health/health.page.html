@@ -1,11 +1,99 @@
 <header class="page-head">
   <h1>Health</h1>
+  <span class="status-pill" data-testid="sh-health-status-pill">
+    <span class="material-symbols-rounded" aria-hidden="true">timer</span>
+    {{ statusPill() }}
+  </span>
 </header>
 
-<sh-pillar-card
-  icon="monitor_heart"
-  title="Body and mind"
-  subtitle="Habits, movement, rest"
->
-  <p>Health tracking will live here.</p>
-</sh-pillar-card>
+@if (fast(); as f) {
+  <section class="card fasting" data-testid="sh-fasting-card" aria-label="Fasting">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">timer</span>
+      <h2>Fasting</h2>
+      <span class="meta" data-testid="sh-fasting-target">{{ ratio() }}</span>
+    </div>
+
+    <div class="fasting-body">
+      <sh-progress-ring [progress]="progress()" [size]="64" data-testid="sh-fasting-ring" />
+      <div class="fasting-copy">
+        @if (elapsedLabel(); as elapsed) {
+          <p class="elapsed" data-testid="sh-fasting-elapsed">{{ elapsed }}</p>
+        } @else {
+          <p class="elapsed quiet" data-testid="sh-fasting-elapsed">Not fasting</p>
+        }
+        <p class="window" data-testid="sh-fasting-window">{{ windowLine() }}</p>
+      </div>
+      <a
+        class="detail-link"
+        routerLink="/health/fasting"
+        data-testid="sh-fasting-detail-link"
+      >Detail</a>
+    </div>
+  </section>
+
+  <section class="card week" data-testid="sh-week-card" aria-label="This week">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">calendar_month</span>
+      <h2>This week</h2>
+      <span class="meta">fast · move</span>
+    </div>
+    <sh-week-strip [states]="weekStates()" />
+  </section>
+
+  <section class="card workouts" data-testid="sh-workouts-card" aria-label="Workouts">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">timeline</span>
+      <h2>Workouts</h2>
+      <span class="meta">{{ thisWeekCount() }} this week</span>
+    </div>
+
+    <div class="quick-log">
+      @for (machine of machines; track machine) {
+        <button
+          type="button"
+          class="machine-chip"
+          [attr.data-testid]="'sh-workout-chip-' + machine.toLowerCase()"
+          (click)="openWorkoutSheet(machine)"
+        >{{ labels[machine] }}</button>
+      }
+      <button
+        type="button"
+        class="add"
+        aria-label="Log a workout"
+        data-testid="sh-workout-add"
+        (click)="openWorkoutSheet(null)"
+      ><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
+    </div>
+
+    <div class="recent" data-testid="sh-recent-workouts">
+      @for (w of recentWorkouts(); track w.id) {
+        <sh-stat-row
+          [label]="workoutLabel(w)"
+          [meta]="(w.startedAt | date: 'EEE') ?? ''"
+        />
+      } @empty {
+        <p class="empty">No workouts yet this week — anything counts.</p>
+      }
+    </div>
+  </section>
+
+  <section class="card meals" data-testid="sh-meals-card" aria-label="Meals">
+    <div class="card-head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">restaurant</span>
+      <h2>Meals</h2>
+      <span class="meta">no counting</span>
+    </div>
+
+    <p class="last-meal" data-testid="sh-last-meal">{{ lastMealLine() }}</p>
+
+    <button
+      type="button"
+      class="log-meal"
+      data-testid="sh-log-meal"
+      (click)="openMealSheet()"
+    >Log a meal</button>
+  </section>
+} @else {
+  <p class="loading">Loading your rhythm…</p>
+}

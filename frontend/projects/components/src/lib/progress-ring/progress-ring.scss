@@ -1,0 +1,39 @@
+:host {
+  display: inline-block;
+}
+
+.ring {
+  position: relative;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  // Arc starts at 12 o'clock, sweeping clockwise like the design.
+  transform: rotate(-90deg);
+}
+
+circle {
+  fill: none;
+}
+
+.track {
+  stroke: var(--sh-surface-2);
+}
+
+.arc {
+  stroke: var(--sh-primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--sh-dur-base) var(--sh-ease);
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}

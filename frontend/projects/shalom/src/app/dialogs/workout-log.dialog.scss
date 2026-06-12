@@ -1,0 +1,82 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+}
+
+.machines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.chip {
+  @include sheet.sheet-chip;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-ink);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: 50%;
+  background: transparent;
+  font-size: var(--sh-fs-lg);
+  color: var(--sh-ink-soft);
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--sh-primary);
+    color: var(--sh-primary);
+  }
+}
+
+.minutes {
+  min-width: 72px;
+  text-align: center;
+  font-size: var(--sh-fs-lg);
+  font-weight: var(--sh-fw-bold);
+  color: var(--sh-ink);
+}
+
+.efforts {
+  display: flex;
+  gap: 8px;
+}
+
+.note {
+  @include sheet.sheet-input;
+  margin-bottom: 20px;
+}
+
+.save {
+  @include sheet.sheet-save;
+}

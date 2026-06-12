@@ -53,6 +53,30 @@
     />
   }
 
+  <a
+    class="fasting-card"
+    routerLink="/health/fasting"
+    data-testid="sh-today-fasting"
+    aria-label="Fasting"
+  >
+    <div class="head">
+      <span class="icon material-symbols-rounded" aria-hidden="true">timer</span>
+      <h2>Fasting</h2>
+      <span class="ratio">{{ fastRatio() }}</span>
+    </div>
+    <div class="body">
+      <sh-progress-ring [progress]="fastProgress()" [size]="48" />
+      <div class="copy">
+        @if (fastElapsed(); as elapsed) {
+          <p class="elapsed" data-testid="sh-today-fasting-elapsed">{{ elapsed }}</p>
+        } @else {
+          <p class="elapsed quiet" data-testid="sh-today-fasting-elapsed">Not fasting</p>
+        }
+        <p class="window" data-testid="sh-today-fasting-window">{{ fastWindowLine() }}</p>
+      </div>
+    </div>
+  </a>
+
   <p class="streaks">
     {{ t.streaks.checkInCurrent }}-day check-in rhythm ·
     {{ t.streaks.readingCurrent }}-day reading rhythm

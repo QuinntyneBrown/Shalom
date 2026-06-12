@@ -13,6 +13,8 @@
 
 import { APIRequestContext, expect, test as base } from '@playwright/test';
 
+import { FastDetailPage } from '../pages/fast-detail.page';
+import { HealthPage } from '../pages/health.page';
 import { SignInPage } from '../pages/sign-in.page';
 import { TodayPage } from '../pages/today.page';
 import { SEEDED_USER } from './users';
@@ -22,6 +24,8 @@ export const API_URL = 'http://localhost:5100';
 interface Pages {
   signIn: SignInPage;
   today: TodayPage;
+  health: HealthPage;
+  fastDetail: FastDetailPage;
 }
 
 export interface TodayReading {
@@ -40,6 +44,49 @@ export interface TodayAggregate {
   greetingName: string;
   checkIn: unknown | null;
   reading: TodayReading | null;
+}
+
+export interface FastSession {
+  id: string;
+  startedAt: string;
+  targetHours: number;
+  endedAt: string | null;
+  elapsedHours: number;
+  outcome: 'Completed' | 'EndedEarly' | null;
+}
+
+export interface CurrentFast {
+  current: FastSession | null;
+  schedule: {
+    eatingWindowStart: string;
+    eatingWindowEnd: string;
+    targetFastHours: number;
+    timeZoneId: string;
+    todayWindow: { start: string; end: string };
+  };
+}
+
+export interface WorkoutRow {
+  id: string;
+  equipment: 'Treadmill' | 'IndoorBike' | 'Elliptical';
+  startedAt: string;
+  durationMinutes: number;
+  notes: string | null;
+}
+
+export interface MealRow {
+  id: string;
+  text: string;
+  tags: string[];
+  occurredAt: string;
+}
+
+/** `yyyy-MM-dd` in the runner's local timezone (matches the server's Toronto day on this machine). */
+export function localIsoDate(date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 /** Authenticated REST helper against the seeded user, for test setup. */
@@ -77,6 +124,71 @@ export class ShalomApi {
     );
     if (!res.ok()) throw new Error(`DELETE day ${dayId} failed (${res.status()}).`);
   }
+
+  async getCurrentFast(): Promise<CurrentFast> {
+    const res = await this.request.get(`${API_URL}/api/fasting/current`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok()) throw new Error(`GET /api/fasting/current failed (${res.status()}).`);
+    return (await res.json()) as CurrentFast;
+  }
+
+  async startFast(targetHours?: number): Promise<FastSession> {
+    const res = await this.request.post(`${API_URL}/api/fasting/start`, {
+      headers: await this.bearer(),
+      data: targetHours ? { targetHours } : {},
+    });
+    if (!res.ok()) throw new Error(`POST /api/fasting/start failed (${res.status()}).`);
+    return (await res.json()) as FastSession;
+  }
+
+  async endFast(): Promise<FastSession> {
+    const res = await this.request.post(`${API_URL}/api/fasting/current/end`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok()) throw new Error(`POST /api/fasting/current/end failed (${res.status()}).`);
+    return (await res.json()) as FastSession;
+  }
+
+  /** Ends any open fast so a spec can start from a clean state (no-op when none). */
+  async ensureNoOpenFast(): Promise<void> {
+    const { current } = await this.getCurrentFast();
+    if (current) await this.endFast();
+  }
+
+  async fastingHistory(from: string, to: string): Promise<FastSession[]> {
+    const res = await this.request.get(
+      `${API_URL}/api/fasting/history?from=${from}&to=${to}`,
+      { headers: await this.bearer() },
+    );
+    if (!res.ok()) throw new Error(`GET /api/fasting/history failed (${res.status()}).`);
+    return (await res.json()) as FastSession[];
+  }
+
+  async listWorkouts(from: string, to: string): Promise<WorkoutRow[]> {
+    const res = await this.request.get(
+      `${API_URL}/api/workouts?from=${from}&to=${to}`,
+      { headers: await this.bearer() },
+    );
+    if (!res.ok()) throw new Error(`GET /api/workouts failed (${res.status()}).`);
+    return (await res.json()) as WorkoutRow[];
+  }
+
+  async deleteWorkout(id: string): Promise<void> {
+    const res = await this.request.delete(`${API_URL}/api/workouts/${id}`, {
+      headers: await this.bearer(),
+    });
+    if (!res.ok()) throw new Error(`DELETE workout ${id} failed (${res.status()}).`);
+  }
+
+  async listMeals(from: string, to: string): Promise<MealRow[]> {
+    const res = await this.request.get(
+      `${API_URL}/api/meals?from=${from}&to=${to}`,
+      { headers: await this.bearer() },
+    );
+    if (!res.ok()) throw new Error(`GET /api/meals failed (${res.status()}).`);
+    return (await res.json()) as MealRow[];
+  }
 }
 
 interface ShFixtures {
@@ -90,6 +202,8 @@ export const test = base.extend<ShFixtures>({
     await use({
       signIn: new SignInPage(page),
       today: new TodayPage(page),
+      health: new HealthPage(page),
+      fastDetail: new FastDetailPage(page),
     });
   },
   api: async ({ request }, use) => {

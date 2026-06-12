@@ -1,0 +1,51 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+  margin-bottom: 8px;
+}
+
+.message {
+  margin: 0 0 20px;
+  font-size: var(--sh-fs-base);
+  color: var(--sh-ink-soft);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.cancel {
+  flex: 1;
+  padding: 13px 16px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-pill);
+  background: transparent;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-base);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-soft);
+  cursor: pointer;
+}
+
+.confirm {
+  flex: 1;
+  padding: 13px 16px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-primary);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-base);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-on-primary);
+  cursor: pointer;
+}

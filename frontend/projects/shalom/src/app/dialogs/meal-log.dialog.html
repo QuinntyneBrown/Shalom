@@ -1,0 +1,36 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Log a meal</h2>
+<p class="subtitle">No calories. Just patterns.</p>
+
+<input
+  class="text"
+  type="text"
+  name="meal"
+  maxlength="300"
+  placeholder="What did you eat?"
+  autocomplete="off"
+  data-testid="sh-sheet-meal-text"
+  [value]="text()"
+  (input)="onTextInput($event)"
+/>
+
+<div class="tags" role="group" aria-label="Tags">
+  @for (tag of allTags; track tag) {
+    <button
+      type="button"
+      class="chip"
+      [class.selected]="isSelected(tag)"
+      [attr.aria-pressed]="isSelected(tag)"
+      [attr.data-testid]="'sh-sheet-meal-tag-' + tag"
+      (click)="toggleTag(tag)"
+    >{{ tag[0].toUpperCase() + tag.slice(1) }}</button>
+  }
+</div>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-meal"
+  [disabled]="!canSave()"
+  (click)="save()"
+>{{ saving() ? 'Saving…' : 'Save meal' }}</button>
