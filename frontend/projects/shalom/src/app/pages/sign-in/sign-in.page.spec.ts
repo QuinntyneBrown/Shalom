@@ -10,6 +10,7 @@ describe('SignInPage', () => {
   let loginCalls: Array<{ req: { email: string; password: string }; remember: boolean }>;
 
   beforeEach(async () => {
+    localStorage.clear();
     loginCalls = [];
     const sessionMock = {
       user: signal(null),
@@ -55,6 +56,8 @@ describe('SignInPage', () => {
   });
 
   it('submits credentials through the session store and navigates to /today', async () => {
+    localStorage.setItem('sh.onboarded', '1'); // returning device — no welcome detour
+
     setValue('input[name="email"]', 'ruth@example.com');
     setValue('input[name="password"]', 'secret');
     fixture.detectChanges();
@@ -67,5 +70,18 @@ describe('SignInPage', () => {
       { req: { email: 'ruth@example.com', password: 'secret' }, remember: true },
     ]);
     expect(TestBed.inject(Router).url).toBe('/today');
+  });
+
+  it('detours the FIRST sign-in to /welcome while sh.onboarded is unset', async () => {
+    setValue('input[name="email"]', 'ruth@example.com');
+    setValue('input[name="password"]', 'secret');
+    fixture.detectChanges();
+
+    const form: HTMLFormElement = fixture.nativeElement.querySelector('form');
+    form.dispatchEvent(new Event('submit'));
+    await fixture.whenStable();
+
+    expect(loginCalls.length).toBe(1);
+    expect(TestBed.inject(Router).url).toBe('/welcome');
   });
 });

@@ -1,0 +1,58 @@
+{
+  "$schema": "../../node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.png",
+          "/index.csr.html",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "name": "today",
+      "urls": [
+        "/api/today",
+        "https://shalom-api-aouvy.azurewebsites.net/api/today",
+        "http://localhost:5100/api/today"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "timeout": "3s",
+        "maxAge": "12h",
+        "maxSize": 10
+      }
+    },
+    {
+      "name": "auth",
+      "urls": [
+        "/api/auth/me",
+        "https://shalom-api-aouvy.azurewebsites.net/api/auth/me",
+        "http://localhost:5100/api/auth/me"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "timeout": "3s",
+        "maxAge": "7d",
+        "maxSize": 4
+      }
+    }
+  ]
+}

@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { SESSION_STORE } from 'api';
 
+import { isOnboarded } from '../../shared/onboarding';
+
 /**
  * Sign-in page.
  *
@@ -12,7 +14,10 @@ import { SESSION_STORE } from 'api';
  * persists in `localStorage` (default) or `sessionStorage`, so the
  * session survives a refresh.
  *
- * Successful sign-in lands on `/today` or a same-origin `returnUrl`.
+ * Successful sign-in lands on `/today` or a same-origin `returnUrl` —
+ * unless this device has never finished the welcome flow
+ * (`sh.onboarded` unset): the FIRST sign-in detours to `/welcome`,
+ * which shows the quick setup (steps 2–3) and then marks itself done.
  */
 
 interface SignInFormValue {
@@ -55,7 +60,7 @@ export class SignInPage {
     const { email, password, remember } = this.form.getRawValue() as SignInFormValue;
     try {
       await this.session.login({ email, password }, remember);
-      await this.router.navigateByUrl(this.safeReturnUrl());
+      await this.router.navigateByUrl(isOnboarded() ? this.safeReturnUrl() : '/welcome');
     } catch {
       // SessionStore surfaces the error via its `error` signal; the template
       // renders it. The promise rejection is expected.

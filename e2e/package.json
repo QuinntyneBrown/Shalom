@@ -6,6 +6,8 @@
   "scripts": {
     "pretest": "node scripts/prepare.mjs",
     "test": "playwright test --config=playwright.config.ts",
+    "pretest:offline": "node scripts/prepare.mjs && npm --prefix ../frontend run build -- shalom --configuration e2e",
+    "test:offline": "playwright test --config=playwright.offline.config.ts",
     "prepare:db": "node scripts/prepare.mjs",
     "report": "playwright show-report"
   },

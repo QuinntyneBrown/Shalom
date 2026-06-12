@@ -20,6 +20,7 @@ import { PersonDetailPage } from '../pages/person-detail.page';
 import { RitualPage } from '../pages/ritual.page';
 import { SignInPage } from '../pages/sign-in.page';
 import { TodayPage } from '../pages/today.page';
+import { WelcomePage } from '../pages/welcome.page';
 import { SEEDED_USER } from './users';
 
 export const API_URL = 'http://localhost:5100';
@@ -32,6 +33,7 @@ interface Pages {
   fastDetail: FastDetailPage;
   people: PeoplePage;
   personDetail: PersonDetailPage;
+  welcome: WelcomePage;
 }
 
 /**
@@ -318,14 +320,31 @@ interface ShFixtures {
   api: ShalomApi;
   signInAsSeededUser: () => Promise<void>;
   pinnedMorning: string;
+  /**
+   * Most specs model a RETURNING device, so `sh.onboarded` is pre-set and
+   * the M7 welcome flow never intercepts them (the auth guard sends fresh
+   * visitors to `/welcome`, and the first sign-in detours there too).
+   * `onboarding.spec.ts` opts out via `test.use({ onboarded: false })`.
+   */
+  onboarded: boolean;
 }
 
 export const test = base.extend<ShFixtures>({
+  onboarded: [true, { option: true }],
   // Every spec starts at a deterministic 08:00 local morning (today's real
   // date, so server-derived local days still match). Re-pin with pinClock()
   // for midday/evening/night scenarios.
   pinnedMorning: [
-    async ({ page }, use) => {
+    async ({ page, onboarded }, use) => {
+      if (onboarded) {
+        await page.addInitScript(() => {
+          try {
+            window.localStorage.setItem('sh.onboarded', '1');
+          } catch {
+            // about:blank and friends — the app origin will run this again.
+          }
+        });
+      }
       const iso = `${localIsoDate()}T08:00:00`;
       await pinClock(page, iso);
       await use(iso);
@@ -341,6 +360,7 @@ export const test = base.extend<ShFixtures>({
       fastDetail: new FastDetailPage(page),
       people: new PeoplePage(page),
       personDetail: new PersonDetailPage(page),
+      welcome: new WelcomePage(page),
     });
   },
   api: async ({ request }, use) => {

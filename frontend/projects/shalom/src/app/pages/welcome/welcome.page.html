@@ -1,0 +1,170 @@
+<div class="welcome">
+  @switch (step()) {
+    @case (1) {
+      <section class="step intro" data-testid="sh-welcome-step-1" aria-label="Welcome">
+        <h1 class="brand">Shalom.</h1>
+        <p class="promise">Wholeness, one morning at a time.</p>
+
+        <ul class="values">
+          <li class="value-row">
+            <span class="value-icon material-symbols-rounded" aria-hidden="true">wb_twilight</span>
+            <span class="value-label">A 2-minute morning ritual</span>
+          </li>
+          <li class="value-row">
+            <span class="value-icon material-symbols-rounded" aria-hidden="true">timer</span>
+            <span class="value-label">Fasting that fits your real life</span>
+          </li>
+          <li class="value-row">
+            <span class="value-icon material-symbols-rounded" aria-hidden="true">favorite</span>
+            <span class="value-label">Stay close to the people you love</span>
+          </li>
+        </ul>
+      </section>
+    }
+
+    @case (2) {
+      <section class="step" data-testid="sh-welcome-step-2" aria-label="Your rhythm">
+        <h1 class="title">Your rhythm</h1>
+        <p class="subtitle">Two questions. You can change everything later.</p>
+
+        <div class="card" data-testid="sh-welcome-wake">
+          <div class="card-head">
+            <span class="card-icon material-symbols-rounded" aria-hidden="true">alarm</span>
+            <h2 class="card-title">I usually wake at</h2>
+          </div>
+          <div class="card-value-row">
+            <span class="big-value" data-testid="sh-welcome-wake-value">{{ wakeDisplay() }}</span>
+            <button
+              type="button"
+              class="change"
+              data-testid="sh-welcome-wake-change"
+              (click)="changeWakeTime()"
+            >change</button>
+          </div>
+        </div>
+
+        <div class="card" data-testid="sh-welcome-window">
+          <div class="card-head">
+            <span class="card-icon material-symbols-rounded" aria-hidden="true">restaurant</span>
+            <h2 class="card-title">Eating window</h2>
+            <span class="card-meta">{{ ratio() }}</span>
+          </div>
+          <div class="card-value-row">
+            <span class="big-value window-value" data-testid="sh-welcome-window-value">
+              {{ windowDisplay() }}
+            </span>
+            <button
+              type="button"
+              class="change"
+              data-testid="sh-welcome-window-change"
+              (click)="changeWindow()"
+            >change</button>
+          </div>
+          <hr class="divider" />
+          <div class="sunday-row">
+            <div class="sunday-copy">
+              <p class="sunday-title">Sunday lunch exception</p>
+              <p class="sunday-sub">Family lunch after church — window shifts, streak stays.</p>
+            </div>
+            <button
+              type="button"
+              class="toggle"
+              role="switch"
+              [attr.aria-checked]="sundayException()"
+              aria-label="Sunday lunch exception"
+              data-testid="sh-welcome-sunday-toggle"
+              [class.on]="sundayException()"
+              (click)="toggleSunday()"
+            >
+              <span class="knob" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </section>
+    }
+
+    @case (3) {
+      <section class="step" data-testid="sh-welcome-step-3" aria-label="Make it yours">
+        <h1 class="title">Make it yours</h1>
+        <p class="subtitle">So Shalom is there when you reach for it.</p>
+
+        <div class="card" data-testid="sh-welcome-a2hs">
+          <div class="card-head">
+            <span class="card-icon material-symbols-rounded" aria-hidden="true">ios_share</span>
+            <h2 class="card-title">Add to Home Screen</h2>
+          </div>
+          @if (standalone()) {
+            <p class="installed" data-testid="sh-welcome-installed">
+              <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+              You're all set — Shalom already lives on your Home Screen.
+            </p>
+          } @else {
+            <ol class="howto">
+              <li>Tap the Share button in Safari</li>
+              <li>Choose 'Add to Home Screen'</li>
+              <li>Put it on your first page, bottom row</li>
+            </ol>
+          }
+        </div>
+
+        <div class="card" data-testid="sh-welcome-shortcuts">
+          <div class="card-head">
+            <span class="card-icon material-symbols-rounded" aria-hidden="true">bolt</span>
+            <h2 class="card-title">Open with your alarm</h2>
+            <span class="card-meta">optional</span>
+          </div>
+          <p class="card-line">
+            A Shortcuts automation can open Shalom when you stop your wake-up alarm.
+          </p>
+          <button
+            type="button"
+            class="show-how"
+            data-testid="sh-welcome-shortcuts-how"
+            (click)="toggleShortcutsHelp()"
+          >Show me how</button>
+          @if (shortcutsHelp()) {
+            <div class="how-note" data-testid="sh-welcome-shortcuts-note">
+              <p>
+                In the Shortcuts app: Automation → New → <em>When my alarm is stopped</em> →
+                Add action → <em>Open App</em> → Shalom → Run immediately.
+              </p>
+              <a class="shortcuts-link" href="shortcuts://" rel="noopener">Open Shortcuts</a>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  <div class="foot">
+    <div class="dots" data-testid="sh-welcome-dots" aria-hidden="true">
+      @for (s of steps; track s) {
+        <span class="dot" [class.active]="step() === s"></span>
+      }
+    </div>
+
+    @if (step() < 3) {
+      <button
+        type="button"
+        class="cta"
+        data-testid="sh-welcome-continue"
+        (click)="continue()"
+      >Continue</button>
+    } @else {
+      <button
+        type="button"
+        class="cta"
+        data-testid="sh-welcome-finish"
+        [disabled]="finishing()"
+        (click)="finish()"
+      >Begin tomorrow morning</button>
+      <button
+        type="button"
+        class="start-now"
+        data-testid="sh-welcome-start-now"
+        [disabled]="finishing()"
+        (click)="startNow()"
+      >or start right now</button>
+    }
+  </div>
+</div>

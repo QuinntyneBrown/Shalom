@@ -1,0 +1,34 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Eating window</h2>
+<p class="subtitle">The window is yours to shape — fasting fills the rest.</p>
+
+<div class="field-row">
+  <label class="field">
+    <span class="field-label">Opens</span>
+    <input
+      type="time"
+      class="time"
+      data-testid="sh-sheet-window-start"
+      [value]="start()"
+      (input)="onTimeInput('start', $event)"
+    />
+  </label>
+  <label class="field">
+    <span class="field-label">Closes</span>
+    <input
+      type="time"
+      class="time"
+      data-testid="sh-sheet-window-end"
+      [value]="end()"
+      (input)="onTimeInput('end', $event)"
+    />
+  </label>
+</div>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-window"
+  [disabled]="!canSave()"
+  (click)="save()"
+>Save</button>

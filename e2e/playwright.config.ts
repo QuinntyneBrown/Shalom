@@ -44,6 +44,9 @@ const shalomConnection = process.env.SHALOM_CONNECTION ?? dotEnv.SHALOM_CONNECTI
 
 export default defineConfig({
   testDir: './tests',
+  // offline.spec.ts needs the PRODUCTION bundle (the service worker never
+  // runs under `ng serve`) — it has its own playwright.offline.config.ts.
+  testIgnore: ['**/offline.spec.ts'],
   fullyParallel: false,
   workers: 1,
   retries: 0,

@@ -1,0 +1,342 @@
+// Welcome flow (designs 16–18): a calm, full-height column — content
+// breathes, the dots + CTA settle at the bottom.
+
+:host {
+  display: block;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 16px - env(safe-area-inset-bottom, 0px));
+  padding-top: max(24px, env(safe-area-inset-top, 0px));
+}
+
+.step {
+  flex: 1;
+}
+
+// ---- step 1: the promise ---------------------------------------------------
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand {
+  margin: 0;
+  text-align: center;
+  font-family: var(--sh-font-display);
+  font-size: 56px;
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--sh-ink);
+}
+
+.promise {
+  margin: 12px 0 48px;
+  text-align: center;
+  font-size: var(--sh-fs-lg);
+  color: var(--sh-ink-soft);
+}
+
+.values {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 28px;
+}
+
+.value-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.value-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-primary-container);
+  color: var(--sh-primary);
+  font-size: 26px;
+}
+
+.value-label {
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-ink);
+}
+
+// ---- steps 2 & 3: heading + cards ------------------------------------------
+
+.title {
+  margin: 24px 0 4px;
+  font-size: var(--sh-fs-xxl);
+  color: var(--sh-ink);
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  font-size: var(--sh-fs-md);
+  color: var(--sh-ink-soft);
+}
+
+.card {
+  background: var(--sh-surface-elev);
+  border-radius: var(--sh-r-xl);
+  box-shadow: var(--sh-shadow-1);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--sh-r-md);
+  background: var(--sh-primary-container);
+  color: var(--sh-primary);
+  font-size: 22px;
+}
+
+.card-title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-bold);
+  color: var(--sh-ink);
+}
+
+.card-meta {
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-faint);
+}
+
+.card-value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.big-value {
+  font-family: var(--sh-font-display);
+  font-size: 30px;
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--sh-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.window-value {
+  font-size: 24px;
+}
+
+.change {
+  flex: none;
+  padding: 8px 18px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-pill);
+  background: transparent;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+  cursor: pointer;
+}
+
+.divider {
+  margin: 16px 0 12px;
+  border: 0;
+  border-top: 1px solid var(--sh-line);
+}
+
+.sunday-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sunday-copy {
+  flex: 1;
+}
+
+.sunday-title {
+  margin: 0;
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-ink);
+}
+
+.sunday-sub {
+  margin: 2px 0 0;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+}
+
+.toggle {
+  flex: none;
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-surface-2);
+  cursor: pointer;
+  transition: background var(--sh-dur-base) var(--sh-ease);
+
+  .knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: var(--sh-shadow-1);
+    transition: transform var(--sh-dur-base) var(--sh-ease);
+  }
+
+  &.on {
+    background: var(--sh-primary);
+
+    .knob {
+      transform: translateX(20px);
+    }
+  }
+}
+
+// ---- step 3 cards ------------------------------------------------------------
+
+.howto {
+  margin: 14px 0 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+  color: var(--sh-ink);
+  font-size: var(--sh-fs-base);
+}
+
+.installed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  color: var(--sh-primary);
+  font-weight: var(--sh-fw-medium);
+
+  .material-symbols-rounded {
+    color: var(--sh-tertiary-ink);
+  }
+}
+
+.card-line {
+  margin: 14px 0 0;
+  color: var(--sh-ink);
+}
+
+.show-how {
+  margin-top: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-base);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-primary);
+  cursor: pointer;
+}
+
+.how-note {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: var(--sh-r-md);
+  background: var(--sh-surface-2);
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+
+  p {
+    margin: 0 0 8px;
+  }
+}
+
+.shortcuts-link {
+  color: var(--sh-primary);
+  font-weight: var(--sh-fw-semibold);
+  text-decoration: none;
+}
+
+// ---- foot: dots + CTA ----------------------------------------------------------
+
+.foot {
+  padding-top: 20px;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sh-surface-2);
+
+  &.active {
+    background: var(--sh-primary);
+  }
+}
+
+.cta {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-primary);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-on-primary);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.start-now {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  border: none;
+  background: none;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-base);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-primary);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}

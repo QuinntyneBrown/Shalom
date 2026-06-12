@@ -10,7 +10,7 @@
   <div class="row" data-testid="sh-settings-wake">
     <span class="icon material-symbols-rounded" aria-hidden="true">alarm</span>
     <span class="label">Wake time</span>
-    <span class="value">6:00</span>
+    <span class="value">{{ wakeTime }}</span>
   </div>
   <button
     type="button"
@@ -82,6 +82,11 @@
   <a class="row tappable" routerLink="/settings/everything" data-testid="sh-settings-everything">
     <span class="icon material-symbols-rounded" aria-hidden="true">auto_stories</span>
     <span class="label">Everything Shalom can do</span>
+    <span class="chevron material-symbols-rounded" aria-hidden="true">chevron_right</span>
+  </a>
+  <a class="row tappable" routerLink="/welcome" data-testid="sh-settings-replay-welcome">
+    <span class="icon material-symbols-rounded" aria-hidden="true">wb_twilight</span>
+    <span class="label">Replay welcome</span>
     <span class="chevron material-symbols-rounded" aria-hidden="true">chevron_right</span>
   </a>
   <div class="row" data-testid="sh-settings-about">

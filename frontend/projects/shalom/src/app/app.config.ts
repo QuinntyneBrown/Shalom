@@ -3,6 +3,7 @@ import {
   inject,
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
+  isDevMode,
 } from '@angular/core';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -36,6 +37,7 @@ import {
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { ThemeService } from './theme/theme.service';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -69,5 +71,14 @@ export const appConfig: ApplicationConfig = {
     // People slice — circle, derived nudges, gratitude, important dates.
     { provide: PEOPLE_SERVICE, useExisting: PeopleService },
     { provide: GRATITUDE_SERVICE, useExisting: GratitudeService },
+
+    // PWA (M7): ngsw app-shell + the `/api/today` and `/api/auth/me`
+    // freshness caches (ngsw-config.json). Disabled in dev mode so
+    // `ng serve` (and the dev-mode e2e suite) never meets a service
+    // worker; registration waits for app stability, capped at 30s.
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };

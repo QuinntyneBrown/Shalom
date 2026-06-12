@@ -44,7 +44,7 @@
       type="button"
       class="cta"
       data-testid="sh-ritual-continue"
-      [disabled]="!canContinue()"
+      [disabled]="!canContinue() || !store.online()"
       (click)="continueCheckIn()"
     >Continue</button>
   }
@@ -80,6 +80,7 @@
       type="button"
       class="cta"
       data-testid="sh-ritual-mark-read"
+      [disabled]="!store.online()"
       (click)="markReadContinue()"
     >{{ scriptureCta() }}</button>
   }

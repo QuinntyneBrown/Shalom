@@ -1,0 +1,22 @@
+// A quiet ribbon pinned to the very top, under the iOS status bar.
+.banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: calc(env(safe-area-inset-top) + 6px) 16px 6px;
+  background: var(--sh-on-primary-container);
+  color: var(--sh-primary-container);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-xs);
+  font-weight: var(--sh-fw-medium);
+
+  .material-symbols-rounded {
+    font-size: 16px;
+  }
+}

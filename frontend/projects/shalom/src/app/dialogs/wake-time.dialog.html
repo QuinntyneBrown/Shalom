@@ -1,0 +1,21 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">I usually wake at</h2>
+<p class="subtitle">Shalom shapes the morning around this. Change it any time.</p>
+
+<label class="field">
+  <span class="field-label">Wake time</span>
+  <input
+    type="time"
+    class="time"
+    data-testid="sh-sheet-wake-time"
+    [value]="time()"
+    (input)="onTimeInput($event)"
+  />
+</label>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-wake-time"
+  (click)="save()"
+>Save</button>

@@ -13,14 +13,16 @@ import { FASTING_SERVICE, FastingScheduleDto, SESSION_STORE } from 'api';
 import { FastingScheduleDialog } from '../../dialogs/fasting-schedule.dialog';
 import { SheetOpener } from '../../dialogs/sheet';
 import { formatWindowTime } from '../../shared/health-format';
+import { formatWakeShort, readWakeTime } from '../../shared/onboarding';
 import { TodayStore } from '../../state/today.store';
 import { ThemePreference, ThemeService } from '../../theme/theme.service';
 
 /**
  * Settings (design 19): grouped rows — RHYTHM (wake time display-only,
- * fasting schedule → editor sheet, quiet days), FAITH (reading plan,
- * YouVersion), REMINDERS (display-only until M10), APPEARANCE (theme
- * override auto/light/dawn), SHALOM (everything + about), sign out.
+ * from the welcome flow's `sh.wakeTime`; fasting schedule → editor sheet,
+ * quiet days), FAITH (reading plan, YouVersion), REMINDERS (display-only
+ * until M10), APPEARANCE (theme override auto/light/dawn), SHALOM
+ * (everything + replay welcome + about), sign out.
  */
 @Component({
   selector: 'app-settings',
@@ -40,6 +42,9 @@ export class SettingsPage implements OnInit {
 
   protected readonly schedule = signal<FastingScheduleDto | null>(null);
   protected readonly themeOptions: readonly ThemePreference[] = ['auto', 'light', 'dawn'];
+
+  /** Display-only — set during the welcome flow (`sh.wakeTime`). */
+  protected readonly wakeTime = formatWakeShort(readWakeTime());
 
   /** "16:8" from the live schedule (design value position). */
   protected readonly scheduleValue = computed(() => {

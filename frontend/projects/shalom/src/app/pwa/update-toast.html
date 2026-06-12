@@ -1,0 +1,20 @@
+@if (ready()) {
+  <div class="toast" data-testid="sh-update-toast" role="status">
+    <span class="material-symbols-rounded icon" aria-hidden="true">wb_twilight</span>
+    <button
+      type="button"
+      class="message"
+      data-testid="sh-update-toast-refresh"
+      (click)="refresh()"
+    >{{ refreshing() ? 'Refreshing…' : 'A quieter, newer Shalom is ready — refresh' }}</button>
+    <button
+      type="button"
+      class="dismiss"
+      data-testid="sh-update-toast-dismiss"
+      aria-label="Not now"
+      (click)="dismiss()"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
+  </div>
+}

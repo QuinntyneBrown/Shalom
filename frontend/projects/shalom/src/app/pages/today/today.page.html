@@ -78,6 +78,7 @@
             type="button"
             class="chip filled"
             data-testid="sh-today-log-meal"
+            [disabled]="!store.online()"
             (click)="openMealLog()"
           >Log a meal</button>
           @if (windowCloseMinutes() !== null) {
@@ -120,7 +121,12 @@
           </div>
           <p class="card-line">{{ eveningMovementLine() }}</p>
           <div class="card-actions">
-            <button type="button" class="chip filled" (click)="openWorkoutLog()">
+            <button
+              type="button"
+              class="chip filled"
+              [disabled]="!store.online()"
+              (click)="openWorkoutLog()"
+            >
               {{ eveningLogLabel() }}
             </button>
             <button
@@ -178,7 +184,12 @@
         <p class="card-line">{{ middayMovementLine() }}</p>
         @if (!todaysWorkout() && intention() !== 'Rest') {
           <div class="card-actions">
-            <button type="button" class="chip" (click)="openWorkoutLog()">Log it</button>
+            <button
+              type="button"
+              class="chip"
+              [disabled]="!store.online()"
+              (click)="openWorkoutLog()"
+            >Log it</button>
           </div>
         }
       </section>
@@ -208,14 +219,14 @@
             type="button"
             class="chip"
             data-testid="sh-today-connection-done"
-            [disabled]="connecting()"
+            [disabled]="connecting() || !store.online()"
             (click)="connectionDone(n)"
           >Done</button>
           <button
             type="button"
             class="chip plain"
             data-testid="sh-today-connection-snooze"
-            [disabled]="connecting()"
+            [disabled]="connecting() || !store.online()"
             (click)="connectionSnooze(n)"
           >Not today</button>
         </div>

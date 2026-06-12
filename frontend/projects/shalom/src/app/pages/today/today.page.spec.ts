@@ -329,6 +329,46 @@ describe('TodayPage', () => {
     });
   });
 
+  describe('offline (M7: writes are online-only)', () => {
+    it('disables the API mutation buttons while offline and re-enables on reconnect', async () => {
+      pinClock('2026-06-12T12:47:00');
+      await setup({
+        ...baseToday,
+        fasting: { ...baseToday.fasting, current: null, windowOpen: true },
+      });
+
+      window.dispatchEvent(new Event('offline'));
+      fixture.detectChanges();
+
+      expect(byTestId<HTMLButtonElement>('sh-today-log-meal')!.disabled).toBe(true);
+      expect(byTestId<HTMLButtonElement>('sh-today-connection-done')!.disabled).toBe(true);
+      expect(byTestId<HTMLButtonElement>('sh-today-connection-snooze')!.disabled).toBe(true);
+
+      window.dispatchEvent(new Event('online'));
+      fixture.detectChanges();
+
+      expect(byTestId<HTMLButtonElement>('sh-today-log-meal')!.disabled).toBe(false);
+      expect(byTestId<HTMLButtonElement>('sh-today-connection-done')!.disabled).toBe(false);
+    });
+
+    it('keeps device-local choices available offline — only API writes pause', async () => {
+      pinClock('2026-06-12T06:11:00');
+      await setup(baseToday);
+
+      window.dispatchEvent(new Event('offline'));
+      fixture.detectChanges();
+
+      // Movement intention is a localStorage fact; offline must not block it.
+      const chip = byTestId<HTMLButtonElement>('sh-today-intention-Treadmill')!;
+      expect(chip.disabled).toBe(false);
+      chip.click();
+      fixture.detectChanges();
+      expect(localStorage.getItem('sh.intention.2026-06-12')).toBe('Treadmill');
+
+      window.dispatchEvent(new Event('online'));
+    });
+  });
+
   describe('night', () => {
     it('rests: a verse fragment, no header, and not a single call to action', async () => {
       pinClock('2026-06-12T23:00:00');

@@ -12,6 +12,7 @@ import {
 } from 'api';
 
 import { appNow } from '../shared/clock';
+import { ConnectivityService } from '../shared/connectivity';
 import { toIsoDate } from '../shared/health-format';
 
 /**
@@ -39,6 +40,13 @@ export class TodayStore implements OnDestroy {
 
   readonly today = this.state.asReadonly();
   readonly loaded = computed(() => this.state() !== null);
+
+  /**
+   * Writes are online-only (M7): surfaces that fire mutations consume this
+   * signal to disable their buttons while offline. Reads still work — the
+   * service worker serves the cached `/api/today` aggregate.
+   */
+  readonly online = inject(ConnectivityService).online;
 
   // One computed view per card, so OnPush surfaces re-render independently.
   readonly checkIn = computed(() => this.state()?.checkIn ?? null);

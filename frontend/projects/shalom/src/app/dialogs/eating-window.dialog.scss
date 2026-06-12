@@ -1,0 +1,49 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.field {
+  flex: 1;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--sh-fs-xs);
+  font-weight: var(--sh-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sh-ink-faint);
+}
+
+.time {
+  @include sheet.sheet-input;
+  font-variant-numeric: tabular-nums;
+}
+
+.save {
+  @include sheet.sheet-save;
+}

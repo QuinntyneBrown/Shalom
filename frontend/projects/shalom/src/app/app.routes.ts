@@ -7,8 +7,13 @@ import { requireAuth } from './auth/require-auth.guard';
  * Shalom application routes.
  *
  * - `/` redirects to `/today`, the default pillar.
- * - `/sign-in` is the only public surface; signed-in visitors are bounced
- *   back to `/today` by `requireAnonymous`.
+ * - `/sign-in` and `/welcome` are the public surfaces; signed-in visitors
+ *   to `/sign-in` are bounced back to `/today` by `requireAnonymous`.
+ * - `/welcome` (designs 16–18) carries NO guard: first-run visitors land
+ *   here before sign-in (`requireAuth` sends them when `sh.onboarded` is
+ *   unset), the first sign-in returns here for the quick setup, and
+ *   Settings can replay it any time. It runs in the nav-less `'ritual'`
+ *   shell.
  * - The app surfaces (`/today`, `/today/ritual`, `/health`,
  *   `/health/fasting`, `/people`, `/people/:id`, `/settings`,
  *   `/settings/everything`) are all guarded by `requireAuth`; the ritual
@@ -27,6 +32,12 @@ export const routes: Routes = [
     canActivate: [requireAnonymous],
     loadComponent: () =>
       import('./pages/sign-in/sign-in.page').then((m) => m.SignInPage),
+  },
+  {
+    path: 'welcome',
+    data: { shell: 'ritual' },
+    loadComponent: () =>
+      import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
   },
   {
     path: 'today',

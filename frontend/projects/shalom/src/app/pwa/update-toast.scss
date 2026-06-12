@@ -1,0 +1,55 @@
+// Calm bottom toast, floating above the bottom nav (and the iOS chrome).
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--sh-nav-h) + max(var(--sh-chrome-bottom, 0px), env(safe-area-inset-bottom)) + 12px);
+  z-index: 60; // above the nav (which sits at the viewport bottom)
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(calc(100vw - 32px), calc(var(--sh-app-max-w) - 32px));
+  padding: 12px 14px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-on-primary-container);
+  color: var(--sh-primary-container);
+  box-shadow: var(--sh-shadow-2);
+  font-family: var(--sh-font-sans);
+}
+
+.icon {
+  font-size: 20px;
+  color: var(--sh-tertiary);
+  flex: none;
+}
+
+.message {
+  flex: 1;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dismiss {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--sh-r-pill);
+  background: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+
+  .material-symbols-rounded {
+    font-size: 18px;
+  }
+}

@@ -18,6 +18,9 @@ import { filter, map, startWith } from 'rxjs';
 import { SESSION_STORE } from 'api';
 import { BottomNav, BottomNavKey } from 'components';
 
+import { OfflineBanner } from './pwa/offline-banner';
+import { UpdateToast } from './pwa/update-toast';
+
 /**
  * Application shell.
  *
@@ -45,7 +48,7 @@ interface NavState {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, BottomNav],
+  imports: [RouterOutlet, BottomNav, OfflineBanner, UpdateToast],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

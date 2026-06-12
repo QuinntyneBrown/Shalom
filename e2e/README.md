@@ -10,7 +10,8 @@ on :5100), Page Object Model layout (saturdaze precedent):
   helper) and seeded credentials (`users.ts`)
 - `tests/` — hand-written specs (`auth`, `today` (morning ritual flow),
   `night`, `check-in`, `reading`, `fasting`, `workouts`, `meals`, `people`,
-  `nudge`, `accessibility` (axe sweep))
+  `nudge`, `onboarding` (M7 welcome flow), `offline` (M7 service worker —
+  separate config, see below), `accessibility` (axe sweep))
 - `scripts/prepare.mjs` — database prep (see below)
 
 ## Running
@@ -21,6 +22,7 @@ npm ci                       # once
 npx playwright install chromium   # once
 npm test                     # all three viewport projects
 npm test -- --project=mobile # the primary project
+npm run test:offline         # M7 offline/PWA spec (prod bundle — see below)
 ```
 
 `npm test` triggers the `pretest` script (database prep) automatically. If
@@ -49,6 +51,51 @@ await pinClock(page, `${localIsoDate()}T23:00:00`); // night band
 
 Production traffic never trips the hook: `sh.testMode` is only ever written
 by the fixtures.
+
+## Onboarding default (`onboarded` option)
+
+M7's welcome flow intercepts FRESH devices: the auth guard sends
+unauthenticated visitors without `sh.onboarded` to `/welcome`, and the
+first sign-in detours there for the quick setup. Every existing spec models
+a returning device, so the auto fixture pre-sets `sh.onboarded=1` via
+`addInitScript`. `onboarding.spec.ts` opts out per-describe with
+`test.use({ onboarded: false })`.
+
+## Offline / PWA spec (`npm run test:offline`)
+
+`tests/offline.spec.ts` is excluded from the main config (`testIgnore`) and
+runs under `playwright.offline.config.ts`, because the Angular service
+worker never runs under `ng serve` (`provideServiceWorker` is guarded by
+`!isDevMode()` — which is also what keeps the SW from interfering with the
+dev-mode specs above). The offline config:
+
+1. builds the frontend with the `e2e` configuration (the `pretest:offline`
+   script): production-grade optimized output **with** the service worker
+   but **without** the prod `fileReplacements`, so `apiBaseUrl` stays
+   `http://localhost:5100` (the ngsw `today`/`auth` dataGroups list that
+   origin alongside the deployed azurewebsites one);
+2. starts the same .NET API webServer as the main config (its Development
+   CORS policy allows any localhost origin);
+3. serves `frontend/dist/shalom/browser` on :4200 with `http-server`
+   (resolved from `e2e/node_modules`) using `--proxy http://localhost:4200?`
+   as the SPA fallback for online deep links (offline navigations are
+   answered by ngsw itself).
+
+**Stop any running `ng serve` first** — the static server binds :4200 and
+`reuseExistingServer: false` turns a collision into an explicit error
+rather than silently testing the dev bundle. Playwright contexts are
+ephemeral, so the registered service worker never leaks into your own
+browser or into the dev-mode suite.
+
+The spec signs in online, waits for `navigator.serviceWorker.ready`,
+reloads once (a *controlled* load, letting ngsw cache the app shell plus
+`/api/today` and `/api/auth/me`), flips `context.setOffline(true)`, reloads
+again, and asserts: Today renders from cache, the offline banner shows,
+mutation buttons are disabled, and a re-pinned clock changes the
+window countdown — proving the live time math runs client-side on the
+cached aggregate (the same `appNow()` derivation that drives the fast
+elapsed timer). The fixture's pinned clock makes the run deterministic:
+14:30 is midday in every seeded schedule (weekday and Sunday override).
 
 ## Database prep (`scripts/prepare.mjs`)
 
