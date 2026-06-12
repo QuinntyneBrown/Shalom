@@ -1,0 +1,11 @@
+<div class="chips" role="group">
+  @for (chip of chips; track chip.value) {
+    <button
+      type="button"
+      class="chip"
+      [class.selected]="isSelected(chip.value)"
+      [attr.aria-pressed]="isSelected(chip.value)"
+      (click)="select(chip.value)"
+    >{{ chip.label }}</button>
+  }
+</div>

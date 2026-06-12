@@ -1,0 +1,14 @@
+<div class="scale" role="group">
+  <span class="end">Far</span>
+  @for (dot of dots; track dot) {
+    <button
+      type="button"
+      class="dot"
+      [class.selected]="isSelected(dot)"
+      [attr.aria-pressed]="isSelected(dot)"
+      [attr.aria-label]="'Closeness ' + dot + ' of 4'"
+      (click)="select(dot)"
+    ></button>
+  }
+  <span class="end">Near</span>
+</div>

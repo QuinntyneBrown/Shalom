@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  background: var(--sh-surface-elev);
+  border: 1px solid var(--sh-line);
+  border-radius: var(--sh-r-xl);
+  box-shadow: var(--sh-shadow-1);
+  padding: 20px;
+}
+
+.text {
+  margin: 0;
+  font-family: var(--sh-font-display);
+  font-size: var(--sh-fs-lg);
+  font-weight: var(--sh-fw-regular);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--sh-ink);
+}
+
+.reference {
+  margin: 10px 0 0;
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-soft);
+}
+
+.link {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 7px 14px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-pill);
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-primary);
+  text-decoration: none;
+  transition: background var(--sh-dur-fast) var(--sh-ease);
+
+  &:hover {
+    background: var(--sh-primary-container);
+  }
+}

@@ -1,0 +1,24 @@
+<div class="meta">
+  <span class="plan">{{ planName() }}</span>
+  <span class="progress">{{ completedCount() }} of {{ totalDays() }} read</span>
+</div>
+
+<h3 class="passage">Day {{ dayNumber() }} · {{ passageReference() }}</h3>
+
+<div class="actions">
+  <a
+    class="link"
+    [href]="href()"
+    target="_blank"
+    rel="noopener"
+  >Read in YouVersion</a>
+
+  @if (completed()) {
+    <span class="done">
+      <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+      Read today
+    </span>
+  } @else {
+    <button type="button" class="mark-read" (click)="markRead.emit()">Mark as read</button>
+  }
+</div>

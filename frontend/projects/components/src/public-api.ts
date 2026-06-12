@@ -7,4 +7,8 @@
  */
 
 export * from './lib/bottom-nav/bottom-nav';
+export * from './lib/dot-scale/dot-scale';
 export * from './lib/pillar-card/pillar-card';
+export * from './lib/rating-chips/rating-chips';
+export * from './lib/reading-card/reading-card';
+export * from './lib/verse-card/verse-card';

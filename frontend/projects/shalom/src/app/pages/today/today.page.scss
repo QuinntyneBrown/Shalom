@@ -1,9 +1,113 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding-top: 24px;
+  padding-bottom: 24px;
 }
 
-.page-head h1 {
-  margin: 0 0 16px;
-  font-size: var(--sh-fs-xxl);
+.page-head {
+  .date {
+    margin: 0;
+    font-size: var(--sh-fs-sm);
+    font-weight: var(--sh-fw-medium);
+    color: var(--sh-ink-soft);
+  }
+
+  .greeting {
+    margin: 2px 0 0;
+    font-family: var(--sh-font-display);
+    font-size: var(--sh-fs-xxl);
+    font-weight: var(--sh-fw-semibold);
+    letter-spacing: -0.02em;
+    color: var(--sh-ink);
+  }
+}
+
+.check-in {
+  background: var(--sh-surface-elev);
+  border: 1px solid var(--sh-line);
+  border-radius: var(--sh-r-xl);
+  box-shadow: var(--sh-shadow-1);
+  padding: 20px;
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+
+    h2 {
+      margin: 0;
+      font-family: var(--sh-font-display);
+      font-size: var(--sh-fs-lg);
+      font-weight: var(--sh-fw-semibold);
+      color: var(--sh-ink);
+    }
+  }
+
+  .saved-badge {
+    font-size: var(--sh-fs-xs);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-tertiary);
+  }
+
+  .label {
+    margin: 14px 0 8px;
+    font-size: var(--sh-fs-sm);
+    color: var(--sh-ink-soft);
+  }
+
+  .note {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border: 1px solid var(--sh-line-strong);
+    border-radius: var(--sh-r-md);
+    background: var(--sh-surface);
+    font-family: var(--sh-font-sans);
+    font-size: var(--sh-fs-base);
+    color: var(--sh-ink);
+
+    &::placeholder {
+      color: var(--sh-ink-faint);
+    }
+
+    &:focus {
+      outline: 2px solid var(--sh-primary);
+      outline-offset: -1px;
+    }
+  }
+
+  .save {
+    margin-top: 14px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--sh-r-pill);
+    background: var(--sh-primary);
+    font-family: var(--sh-font-sans);
+    font-size: var(--sh-fs-sm);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-on-primary);
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+  }
+}
+
+.streaks {
+  margin: 4px 0 0;
+  font-size: var(--sh-fs-xs);
+  color: var(--sh-ink-faint);
+  text-align: center;
+}
+
+.loading {
+  margin: 48px 0;
+  text-align: center;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-faint);
 }

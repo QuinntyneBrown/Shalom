@@ -13,8 +13,14 @@ import {
   API_BASE_URL,
   AUTH_SERVICE,
   AuthService,
+  CHECK_INS_SERVICE,
+  CheckInsService,
+  READING_SERVICE,
+  ReadingService,
   SESSION_STORE,
   SessionStore,
+  TODAY_SERVICE,
+  TodayService,
 } from 'api';
 
 import { environment } from '../environments/environment';
@@ -36,5 +42,10 @@ export const appConfig: ApplicationConfig = {
     // persistence + error-mapping; pages depend only on `SESSION_STORE`.
     { provide: AUTH_SERVICE, useExisting: AuthService },
     { provide: SESSION_STORE, useExisting: SessionStore },
+
+    // Faith slice — Today aggregate, check-ins, reading plan.
+    { provide: TODAY_SERVICE, useExisting: TodayService },
+    { provide: CHECK_INS_SERVICE, useExisting: CheckInsService },
+    { provide: READING_SERVICE, useExisting: ReadingService },
   ],
 };

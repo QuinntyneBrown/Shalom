@@ -30,10 +30,26 @@ export * from './lib/models/signup-request';
 export * from './lib/models/user';
 export * from './lib/models/verify-email-request';
 
+// Faith models (Today / check-ins / reading)
+export * from './lib/models/check-in-dto';
+export * from './lib/models/upsert-check-in-request';
+export * from './lib/models/verse-dto';
+export * from './lib/models/reading-day-dto';
+export * from './lib/models/reading-plan-dto';
+export * from './lib/models/today-reading-dto';
+export * from './lib/models/today-streaks-dto';
+export * from './lib/models/today-dto';
+
 // Service contracts (interface + InjectionToken)
 export * from './lib/services/auth.service.contract';
 export * from './lib/services/session-store.contract';
+export * from './lib/services/today.service.contract';
+export * from './lib/services/check-ins.service.contract';
+export * from './lib/services/reading.service.contract';
 
 // Concrete implementations (imported only by composition roots)
 export * from './lib/services/auth.service';
 export * from './lib/services/session-store';
+export * from './lib/services/today.service';
+export * from './lib/services/check-ins.service';
+export * from './lib/services/reading.service';

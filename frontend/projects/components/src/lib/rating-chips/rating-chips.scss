@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 7px 14px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-pill);
+  background: transparent;
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-soft);
+  cursor: pointer;
+  transition:
+    background var(--sh-dur-fast) var(--sh-ease),
+    color var(--sh-dur-fast) var(--sh-ease),
+    border-color var(--sh-dur-fast) var(--sh-ease);
+
+  &:hover {
+    border-color: var(--sh-primary);
+    color: var(--sh-primary);
+  }
+
+  &.selected {
+    background: var(--sh-primary);
+    border-color: var(--sh-primary);
+    color: var(--sh-on-primary);
+  }
+}

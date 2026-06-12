@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+.scale {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.end {
+  font-size: var(--sh-fs-xs);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-faint);
+}
+
+.dot {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1.5px solid var(--sh-line-strong);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--sh-dur-fast) var(--sh-ease),
+    border-color var(--sh-dur-fast) var(--sh-ease),
+    transform var(--sh-dur-fast) var(--sh-ease);
+
+  &:hover {
+    border-color: var(--sh-primary);
+  }
+
+  &.selected {
+    background: var(--sh-primary);
+    border-color: var(--sh-primary);
+    transform: scale(1.1);
+  }
+}

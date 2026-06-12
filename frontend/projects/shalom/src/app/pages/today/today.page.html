@@ -1,11 +1,62 @@
-<header class="page-head">
-  <h1>Today</h1>
-</header>
+@if (today(); as t) {
+  <header class="page-head">
+    <p class="date">{{ t.date | date: 'EEEE, MMMM d' }}</p>
+    <h1 class="greeting">Shalom, {{ t.greetingName }}</h1>
+  </header>
 
-<sh-pillar-card
-  icon="wb_twilight"
-  title="A calm start"
-  subtitle="Your day at a glance"
->
-  <p>Today's rhythm will live here.</p>
-</sh-pillar-card>
+  <sh-verse-card
+    [text]="t.verse.text"
+    [reference]="t.verse.reference"
+    [href]="t.verse.youVersionUrl"
+  />
+
+  <section class="check-in" aria-label="Morning check-in">
+    <div class="head">
+      <h2>Morning check-in</h2>
+      @if (t.checkIn) {
+        <span class="saved-badge">Saved</span>
+      }
+    </div>
+
+    <p class="label">How is your heart?</p>
+    <sh-rating-chips [(value)]="mood" />
+
+    <p class="label">How near does God feel?</p>
+    <sh-dot-scale [(value)]="spiritual" />
+
+    <input
+      class="note"
+      type="text"
+      name="note"
+      maxlength="500"
+      placeholder="A short note, if you like"
+      autocomplete="off"
+      [value]="note()"
+      (input)="onNoteInput($event)"
+    />
+
+    <button class="save" type="button" [disabled]="!canSave()" (click)="saveCheckIn()">
+      {{ saving() ? 'Saving…' : t.checkIn ? 'Update check-in' : 'Save check-in' }}
+    </button>
+  </section>
+
+  @if (t.reading; as r) {
+    <sh-reading-card
+      [planName]="r.planName"
+      [dayNumber]="r.dayNumber"
+      [passageReference]="r.passageReference"
+      [href]="r.youVersionUrl"
+      [completed]="r.completedToday"
+      [completedCount]="r.completedCount"
+      [totalDays]="r.totalDays"
+      (markRead)="markRead()"
+    />
+  }
+
+  <p class="streaks">
+    {{ t.streaks.checkInCurrent }}-day check-in rhythm ·
+    {{ t.streaks.readingCurrent }}-day reading rhythm
+  </p>
+} @else {
+  <p class="loading">Preparing your morning…</p>
+}
