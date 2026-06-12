@@ -1177,7 +1177,7 @@
                       "fill": "$text",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Tell Natalie one thing you appreciated about her this week.",
+                      "content": "Tell Vanessa one thing you appreciated about her this week.",
                       "lineHeight": 1.45,
                       "fontFamily": "$font-body",
                       "fontSize": "$size-body",
@@ -1933,7 +1933,7 @@
               "id": "aqJRy",
               "name": "Focus Name",
               "fill": "$text",
-              "content": "Natalie",
+              "content": "Vanessa",
               "fontFamily": "$font-display",
               "fontSize": 30,
               "fontWeight": "500"
@@ -2369,7 +2369,7 @@
                           "fill": "$text-muted",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Text Natalie a good-morning",
+                          "content": "Text Vanessa a good-morning",
                           "fontFamily": "$font-body",
                           "fontSize": "$size-label",
                           "fontWeight": "normal"
@@ -2545,7 +2545,7 @@
                   "fill": "$text",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "Tell Natalie one thing you appreciated about her this week.",
+                  "content": "Tell Vanessa one thing you appreciated about her this week.",
                   "lineHeight": 1.45,
                   "fontFamily": "$font-body",
                   "fontSize": "$size-body",
@@ -2697,7 +2697,7 @@
                           "id": "d6Szi",
                           "name": "Initial",
                           "fill": "$primary",
-                          "content": "N",
+                          "content": "V",
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "700"
@@ -2717,7 +2717,7 @@
                           "id": "eAIc2",
                           "name": "Name",
                           "fill": "$text",
-                          "content": "Natalie",
+                          "content": "Vanessa",
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "600"
@@ -2780,7 +2780,7 @@
                           "id": "m1hemS",
                           "name": "Initial",
                           "fill": "$primary",
-                          "content": "M",
+                          "content": "O",
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "700"
@@ -2800,7 +2800,7 @@
                           "id": "F6Nyj7",
                           "name": "Name",
                           "fill": "$text",
-                          "content": "Maya",
+                          "content": "Olivia",
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "600"
@@ -2855,7 +2855,7 @@
                           "id": "OTtTI",
                           "name": "Initial",
                           "fill": "$primary",
-                          "content": "Z",
+                          "content": "M",
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "700"
@@ -2875,7 +2875,7 @@
                           "id": "HCaxN",
                           "name": "Name",
                           "fill": "$text",
-                          "content": "Zoe",
+                          "content": "Makayla",
                           "fontFamily": "$font-body",
                           "fontSize": 15,
                           "fontWeight": "600"
@@ -3374,7 +3374,7 @@
                       "id": "oLfX8",
                       "name": "Initial",
                       "fill": "$primary",
-                      "content": "N",
+                      "content": "V",
                       "fontFamily": "$font-display",
                       "fontSize": 28,
                       "fontWeight": "600"
@@ -3386,7 +3386,7 @@
                   "id": "N7kmvL",
                   "name": "Person Name",
                   "fill": "$text",
-                  "content": "Natalie",
+                  "content": "Vanessa",
                   "fontFamily": "$font-display",
                   "fontSize": 28,
                   "fontWeight": "500"
@@ -4374,7 +4374,7 @@
                       "fill": "$text",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Tell Natalie one thing you appreciated about her this week.",
+                      "content": "Tell Vanessa one thing you appreciated about her this week.",
                       "lineHeight": 1.45,
                       "fontFamily": "$font-body",
                       "fontSize": "$size-body",
