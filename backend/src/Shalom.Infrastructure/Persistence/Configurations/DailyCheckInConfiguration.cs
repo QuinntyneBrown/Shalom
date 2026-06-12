@@ -11,7 +11,7 @@ public class DailyCheckInConfiguration : IEntityTypeConfiguration<DailyCheckIn>
         b.ToTable("DailyCheckIns", t =>
         {
             t.HasCheckConstraint("CK_DailyCheckIns_MoodRating", "[MoodRating] BETWEEN 1 AND 5");
-            t.HasCheckConstraint("CK_DailyCheckIns_SpiritualRating", "[SpiritualRating] BETWEEN 1 AND 5");
+            t.HasCheckConstraint("CK_DailyCheckIns_SpiritualRating", "[SpiritualRating] BETWEEN 1 AND 4");
         });
         b.HasKey(x => x.Id);
         b.Property(x => x.Note).HasMaxLength(2000);

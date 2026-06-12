@@ -11,8 +11,8 @@ public class UpsertTodayCheckInCommandValidatorTests
     [Theory]
     [InlineData(1, 1)]
     [InlineData(3, 4)]
-    [InlineData(5, 5)]
-    public void Ratings_between_1_and_5_are_valid(int mood, int spiritual)
+    [InlineData(5, 4)]
+    public void Ratings_in_range_are_valid(int mood, int spiritual)
     {
         var result = _validator.Validate(new UpsertTodayCheckInCommand(mood, spiritual, null));
         result.IsValid.Should().BeTrue();
@@ -31,8 +31,9 @@ public class UpsertTodayCheckInCommandValidatorTests
 
     [Theory]
     [InlineData(0)]
+    [InlineData(5)]
     [InlineData(6)]
-    public void Spiritual_rating_outside_1_to_5_fails(int spiritual)
+    public void Spiritual_rating_outside_1_to_4_fails(int spiritual)
     {
         var result = _validator.Validate(new UpsertTodayCheckInCommand(3, spiritual, null));
         result.IsValid.Should().BeFalse();

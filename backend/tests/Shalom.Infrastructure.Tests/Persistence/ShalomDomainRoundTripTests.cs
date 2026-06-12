@@ -24,7 +24,7 @@ public class ShalomDomainRoundTripTests : IAsyncLifetime
             UserId = userId,
             Date = new DateOnly(2026, 6, 12),
             MoodRating = 4,
-            SpiritualRating = 5,
+            SpiritualRating = 4,
             Note = "Morning reading before sunrise.",
             CreatedAt = new DateTimeOffset(2026, 6, 12, 10, 30, 0, TimeSpan.Zero),
             UpdatedAt = null,
@@ -40,7 +40,7 @@ public class ShalomDomainRoundTripTests : IAsyncLifetime
         var loaded = await read.DailyCheckIns.SingleAsync(c => c.Id == checkIn.Id);
         loaded.Date.Should().Be(new DateOnly(2026, 6, 12));
         loaded.MoodRating.Should().Be(4);
-        loaded.SpiritualRating.Should().Be(5);
+        loaded.SpiritualRating.Should().Be(4);
         loaded.Note.Should().Be("Morning reading before sunrise.");
         loaded.CreatedAt.Should().Be(new DateTimeOffset(2026, 6, 12, 10, 30, 0, TimeSpan.Zero));
         loaded.UpdatedAt.Should().BeNull();
