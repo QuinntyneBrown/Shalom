@@ -27,13 +27,15 @@ import { BottomNav, BottomNavKey } from 'components';
  *   phone-canvas, and shows `sh-bottom-nav` for authenticated visitors.
  * - `'auth'` — body centers the sign-in card (`flex; column; align-items;
  *   justify-content: center; padding: 24px`). No `.sh-frame` wrapper.
+ * - `'ritual'` — the phone canvas WITHOUT the bottom nav: the morning
+ *   ritual is full-screen and undistracted (`.sh-frame--bare`).
  *
  * On bootstrap the SessionStore rehydrates from local/session storage; the
  * router outlet stays gated on `loading()` so guards see authoritative
  * state on the first paint.
  */
 
-export type AppShell = 'auth';
+export type AppShell = 'auth' | 'ritual';
 
 interface NavState {
   shell: AppShell | undefined;
@@ -66,6 +68,7 @@ export class App {
   );
 
   protected readonly chrome = computed(() => !this.nav().shell);
+  protected readonly ritual = computed(() => this.nav().shell === 'ritual');
   protected readonly loading = this.session.loading;
   protected readonly authenticated = this.session.isAuthenticated;
 

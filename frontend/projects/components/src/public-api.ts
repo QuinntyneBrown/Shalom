@@ -7,6 +7,7 @@
  */
 
 export * from './lib/bottom-nav/bottom-nav';
+export * from './lib/discovery-card/discovery-card';
 export * from './lib/dot-scale/dot-scale';
 export * from './lib/pillar-card/pillar-card';
 export * from './lib/progress-ring/progress-ring';

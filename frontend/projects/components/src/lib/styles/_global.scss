@@ -83,3 +83,9 @@ app-root {
   padding: 0 var(--sh-app-pad-x)
     calc(var(--sh-nav-h) + 16px + env(safe-area-inset-bottom, 0px));
 }
+
+// Nav-less variant for the full-screen ritual: the page owns its own
+// bottom CTA, so only the safe-area inset is reserved.
+.sh-frame--bare {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}

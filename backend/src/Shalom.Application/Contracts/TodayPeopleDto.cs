@@ -7,4 +7,5 @@ namespace Shalom.Application.Contracts;
 /// </summary>
 public record TodayPeopleDto(
     ConnectionNudgeDto? Nudge,
-    IReadOnlyList<UpcomingDateDto> UpcomingDates);
+    IReadOnlyList<UpcomingDateDto> UpcomingDates,
+    PrayerFocusDto PrayerFocus);

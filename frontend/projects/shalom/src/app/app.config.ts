@@ -35,11 +35,14 @@ import {
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { ThemeService } from './theme/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideAppInitializer(() => inject(SESSION_STORE).rehydrate()),
+    // Dawn theme: applied before first paint, re-checked once a minute.
+    provideAppInitializer(() => inject(ThemeService).start()),
     provideRouter(routes),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     { provide: API_BASE_URL, useValue: environment.apiBaseUrl },

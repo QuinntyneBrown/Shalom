@@ -7,6 +7,10 @@
   @if (authenticated()) {
     <sh-bottom-nav [active]="activeNav()" />
   }
+} @else if (ritual()) {
+  <div class="sh-frame sh-frame--bare">
+    <router-outlet />
+  </div>
 } @else {
   <router-outlet />
 }

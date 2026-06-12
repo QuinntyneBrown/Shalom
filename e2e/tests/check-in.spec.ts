@@ -1,54 +1,64 @@
 import { expect, test } from '../fixtures/sh-test';
 
-test.describe('daily check-in', () => {
-  test('saving a check-in persists and chips reflect it after reload', async ({
-    page,
+/**
+ * The daily check-in now lives in ritual step 1 (M6). The upsert is
+ * idempotent per local day, so re-runs simply update the existing row.
+ */
+test.describe('daily check-in (ritual step 1)', () => {
+  test('saving via Continue persists, and the ritual prefills it afterwards', async ({
+    api,
     pages,
     signInAsSeededUser,
   }) => {
     await signInAsSeededUser();
 
-    // Pick "Steady" (mood 4) + closeness dot 3 and save. The upsert is
-    // idempotent server-side, so re-runs on the same local day simply
-    // update the existing row.
-    await pages.today.selectMood('Steady');
-    await pages.today.selectDot(3);
-    await pages.today.noteInput.fill('e2e: settled into the morning');
-    await expect(pages.today.saveButton).toBeEnabled();
-    await pages.today.saveCheckIn();
+    await pages.ritual.navigate();
+    await expect(pages.ritual.stepCheckIn).toBeVisible();
 
-    await expect(pages.today.savedBadge).toBeVisible();
+    await pages.ritual.moodChip('Steady').click();
+    await pages.ritual.closenessDot(3).click();
+    await pages.ritual.noteInput.fill('e2e: settled into the morning');
+    await expect(pages.ritual.continueButton).toBeEnabled();
+    await pages.ritual.continueButton.click();
 
-    // Reload — the page must re-hydrate the saved check-in from the API.
-    await page.reload();
-    await expect(pages.today.greeting).toBeVisible({ timeout: 15_000 });
+    // The flow advances immediately (optimistic save)…
+    await expect(pages.ritual.stepScripture).toBeVisible();
 
-    await expect(pages.today.moodChip('Steady')).toHaveClass(/selected/);
-    await expect(pages.today.dot(3)).toHaveClass(/selected/);
-    await expect(pages.today.noteInput).toHaveValue('e2e: settled into the morning');
-    await expect(pages.today.savedBadge).toBeVisible();
+    // …and the server really has it.
+    await expect(async () => {
+      const today = await api.getToday();
+      expect(today.checkIn).not.toBeNull();
+    }).toPass();
+
+    // A fresh ritual visit prefills the saved ratings and note.
+    await pages.ritual.navigate();
+    await expect(pages.ritual.moodChip('Steady')).toHaveClass(/selected/);
+    await expect(pages.ritual.closenessDot(3)).toHaveClass(/selected/);
+    await expect(pages.ritual.noteInput).toHaveValue('e2e: settled into the morning');
+    await expect(pages.ritual.continueButton).toBeEnabled();
   });
 
-  test('save stays disabled until both ratings are chosen', async ({
-    pages,
+  test('Continue stays disabled until both ratings are chosen', async ({
     api,
+    pages,
     signInAsSeededUser,
-    page,
   }) => {
+    await signInAsSeededUser();
+    await pages.ritual.navigate();
+    await expect(pages.ritual.stepCheckIn).toBeVisible();
+
     // Only meaningful when nothing is saved yet; with a saved check-in the
     // chips arrive pre-selected, so just assert the enabled state then.
-    await signInAsSeededUser();
-
     const today = await api.getToday();
     if (today.checkIn) {
-      await expect(pages.today.saveButton).toBeEnabled();
+      await expect(pages.ritual.continueButton).toBeEnabled();
       return;
     }
 
-    await expect(pages.today.saveButton).toBeDisabled();
-    await pages.today.selectMood('Full');
-    await expect(pages.today.saveButton).toBeDisabled();
-    await pages.today.selectDot(4);
-    await expect(pages.today.saveButton).toBeEnabled();
+    await expect(pages.ritual.continueButton).toBeDisabled();
+    await pages.ritual.moodChip('Full').click();
+    await expect(pages.ritual.continueButton).toBeDisabled();
+    await pages.ritual.closenessDot(4).click();
+    await expect(pages.ritual.continueButton).toBeEnabled();
   });
 });

@@ -1,0 +1,142 @@
+@use "sheet-shared" as sheet;
+
+:host {
+  @include sheet.sheet-host;
+}
+
+.grab {
+  @include sheet.sheet-grab;
+}
+
+.title {
+  @include sheet.sheet-title;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  font-size: var(--sh-fs-sm);
+  color: var(--sh-ink-soft);
+}
+
+.field-label {
+  display: block;
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-medium);
+  color: var(--sh-ink-soft);
+}
+
+.field-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  .field {
+    flex: 1;
+  }
+
+  .time {
+    @include sheet.sheet-input;
+    margin-top: 6px;
+    padding: 11px 14px;
+  }
+}
+
+.target-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .step {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--sh-line-strong);
+    border-radius: 50%;
+    background: transparent;
+    font-size: var(--sh-fs-lg);
+    line-height: 1;
+    color: var(--sh-ink);
+    cursor: pointer;
+  }
+
+  .hours {
+    min-width: 44px;
+    text-align: center;
+    font-family: var(--sh-font-display);
+    font-size: var(--sh-fs-lg);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-ink);
+  }
+}
+
+.sunday {
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: var(--sh-r-lg);
+  background: var(--sh-surface-2);
+
+  .sunday-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    .field-label {
+      font-weight: var(--sh-fw-semibold);
+      color: var(--sh-ink);
+    }
+  }
+
+  .field-row {
+    margin-bottom: 10px;
+  }
+
+  .footnote {
+    margin: 4px 0 0;
+    font-size: var(--sh-fs-xs);
+    line-height: var(--sh-lh-base);
+    color: var(--sh-ink-soft);
+  }
+}
+
+.toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-line-strong);
+  cursor: pointer;
+  transition: background var(--sh-dur-base) var(--sh-ease);
+
+  .knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--sh-surface-elev);
+    box-shadow: var(--sh-shadow-1);
+    transition: transform var(--sh-dur-base) var(--sh-ease);
+  }
+
+  &.on {
+    background: var(--sh-primary);
+
+    .knob {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.save {
+  @include sheet.sheet-save;
+}

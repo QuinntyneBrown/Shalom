@@ -73,7 +73,12 @@ function todayDto(nudgeValue: ConnectionNudgeDto | null): TodayDto {
       targetHours: 16,
     },
     health: { todaysWorkouts: [], lastMeal: null },
-    people: { nudge: nudgeValue, upcomingDates: [] },
+    people: {
+      nudge: nudgeValue,
+      upcomingDates: [],
+      prayerFocus: { name: 'your church', line: 'Pray for its peace.', tomorrowName: 'FaithTech' },
+    },
+    ritualCompletedToday: false,
   };
 }
 

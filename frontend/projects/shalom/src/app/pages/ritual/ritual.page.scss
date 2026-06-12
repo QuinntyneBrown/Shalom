@@ -1,0 +1,442 @@
+// The morning ritual — full-screen, calm, one thing at a time.
+// Motion: emphasized-decelerate entries only; no bounces, and none at all
+// under prefers-reduced-motion.
+
+$enter-ease: cubic-bezier(0.05, 0.7, 0.1, 1);
+
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: 16px;
+}
+
+.ritual-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+
+  .close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: -8px;
+    border: none;
+    border-radius: var(--sh-r-pill);
+    background: none;
+    color: var(--sh-ink);
+    cursor: pointer;
+
+    .material-symbols-rounded {
+      font-size: 24px;
+    }
+  }
+
+  .dots {
+    display: flex;
+    gap: 10px;
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--sh-surface-2);
+      transition: background var(--sh-dur-base) $enter-ease;
+
+      &.done {
+        background: var(--sh-primary);
+      }
+    }
+  }
+}
+
+.step {
+  flex: 1;
+  padding-top: 24px;
+  animation: step-enter 320ms $enter-ease both;
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step {
+    animation: none;
+  }
+}
+
+// ---- shared text voices -------------------------------------------------
+
+.ask {
+  margin: 0 0 24px;
+  font-family: var(--sh-font-display);
+  font-size: var(--sh-fs-xxl);
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--sh-ink);
+}
+
+.eyebrow {
+  margin: 28px 0 10px;
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-ink-soft);
+}
+
+.step > .eyebrow:first-child {
+  margin-top: 8px;
+}
+
+// ---- step 1 · check-in ---------------------------------------------------
+
+.moods {
+  display: block;
+
+  ::ng-deep .chip {
+    padding: 12px 22px;
+    font-size: var(--sh-fs-md);
+    background: var(--sh-surface-elev);
+  }
+
+  ::ng-deep .chip.selected {
+    background: var(--sh-primary-container);
+    border-color: var(--sh-primary-container);
+    color: var(--sh-on-primary-container);
+    font-weight: var(--sh-fw-bold);
+  }
+}
+
+.closeness {
+  display: block;
+
+  ::ng-deep .dot {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.note {
+  width: 100%;
+  margin-top: 28px;
+  padding: 18px 24px;
+  border: 1px solid var(--sh-line-strong);
+  border-radius: var(--sh-r-xl);
+  background: var(--sh-surface-elev);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-md);
+  color: var(--sh-ink);
+
+  &::placeholder {
+    color: var(--sh-ink-faint);
+  }
+
+  &:focus {
+    outline: 2px solid var(--sh-primary);
+    outline-offset: -1px;
+  }
+}
+
+// ---- step 2 · scripture ----------------------------------------------------
+
+.verse {
+  margin: 0;
+  font-family: var(--sh-font-display);
+  font-size: 30px;
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  color: var(--sh-ink);
+}
+
+.reference {
+  margin: 18px 0 0;
+  font-size: var(--sh-fs-base);
+  font-weight: var(--sh-fw-medium);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-ink-soft);
+}
+
+.divider {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid var(--sh-line-strong);
+}
+
+.reading-card {
+  padding: 22px 24px 24px;
+  border-radius: var(--sh-r-xl);
+  background: var(--sh-surface-elev);
+  box-shadow: var(--sh-shadow-1);
+
+  .card-eyebrow {
+    margin: 0;
+    font-size: var(--sh-fs-sm);
+    font-weight: var(--sh-fw-semibold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sh-ink-soft);
+  }
+
+  .passage {
+    margin: 8px 0 16px;
+    font-family: var(--sh-font-display);
+    font-size: 28px;
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-ink);
+  }
+
+  .youversion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 20px;
+    border: 1px solid var(--sh-line-strong);
+    border-radius: var(--sh-r-pill);
+    font-size: var(--sh-fs-base);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-primary);
+    text-decoration: none;
+
+    .material-symbols-rounded {
+      font-size: 18px;
+    }
+  }
+}
+
+// ---- step 3 · prayer -------------------------------------------------------
+
+.focus-name {
+  margin: 0 0 16px;
+  font-family: var(--sh-font-display);
+  font-size: 40px;
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--sh-ink);
+}
+
+.focus-line {
+  margin: 0;
+  font-size: var(--sh-fs-md);
+  line-height: var(--sh-lh-base);
+  color: var(--sh-ink-soft);
+}
+
+.glow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  margin: 96px auto 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(200, 165, 123, 0.22) 0%,
+    rgba(200, 165, 123, 0.08) 55%,
+    transparent 75%
+  );
+
+  .material-symbols-rounded {
+    font-size: 30px;
+    color: var(--sh-secondary);
+  }
+}
+
+// ---- step 4 · day preview ---------------------------------------------------
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  border-radius: var(--sh-r-xl);
+  background: var(--sh-surface-elev);
+  box-shadow: var(--sh-shadow-1);
+
+  .tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--sh-r-lg);
+    background: var(--sh-primary-container);
+    color: var(--sh-primary);
+    font-size: 24px;
+  }
+
+  .copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .row-title {
+    margin: 0;
+    font-size: var(--sh-fs-md);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-ink);
+  }
+
+  .row-sub {
+    margin: 2px 0 0;
+    font-size: var(--sh-fs-base);
+    color: var(--sh-ink-soft);
+  }
+
+  .change {
+    border: none;
+    background: none;
+    padding: 4px;
+    font-family: var(--sh-font-sans);
+    font-size: var(--sh-fs-base);
+    font-weight: var(--sh-fw-semibold);
+    color: var(--sh-primary);
+    cursor: pointer;
+  }
+
+  .intention-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+
+    .chip {
+      padding: 7px 14px;
+      border: 1px solid var(--sh-line-strong);
+      border-radius: var(--sh-r-pill);
+      background: transparent;
+      font-family: var(--sh-font-sans);
+      font-size: var(--sh-fs-sm);
+      font-weight: var(--sh-fw-medium);
+      color: var(--sh-ink-soft);
+      cursor: pointer;
+
+      &.selected {
+        background: var(--sh-primary-container);
+        border-color: var(--sh-primary-container);
+        color: var(--sh-on-primary-container);
+        font-weight: var(--sh-fw-semibold);
+      }
+    }
+  }
+}
+
+// ---- bottom CTA ---------------------------------------------------------
+
+.cta {
+  width: 100%;
+  margin-top: 24px;
+  padding: 17px 24px;
+  border: none;
+  border-radius: var(--sh-r-pill);
+  background: var(--sh-primary);
+  font-family: var(--sh-font-sans);
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-on-primary);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+// ---- completion -----------------------------------------------------------
+
+.complete {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--sh-font-sans);
+  animation: step-enter 420ms $enter-ease both;
+
+  .halo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    height: 320px;
+    transform: translate(-50%, -64%);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(184, 146, 74, 0.18) 0%,
+      rgba(184, 146, 74, 0.07) 55%,
+      transparent 75%
+    );
+    pointer-events: none;
+  }
+
+  .shalom {
+    font-family: var(--sh-font-display);
+    font-size: 40px;
+    font-weight: var(--sh-fw-semibold);
+    letter-spacing: -0.01em;
+    color: var(--sh-ink);
+    z-index: 1;
+  }
+
+  .peace {
+    margin-top: 120px;
+    font-size: var(--sh-fs-md);
+    color: var(--sh-ink-soft);
+    z-index: 1;
+  }
+
+  .day-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    padding: 9px 18px;
+    border-radius: var(--sh-r-pill);
+    background: var(--sh-tertiary-container);
+    font-size: var(--sh-fs-base);
+    font-weight: var(--sh-fw-bold);
+    color: var(--sh-tertiary-ink);
+    z-index: 1;
+
+    .material-symbols-rounded {
+      font-size: 18px;
+    }
+  }
+
+  .tap-hint {
+    margin-top: 28px;
+    font-size: var(--sh-fs-sm);
+    color: var(--sh-ink-faint);
+    z-index: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .complete {
+    animation: none;
+  }
+}

@@ -1,0 +1,26 @@
+<header class="page-head">
+  <a class="back" routerLink="/settings" aria-label="Back to Settings">
+    <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+  </a>
+  <h1>Everything Shalom can do</h1>
+</header>
+
+<p class="motto">Take what serves you. Ignore the rest.</p>
+
+@for (group of groups; track group.label) {
+  <p class="group-label">{{ group.label }}</p>
+  <div class="group">
+    @for (row of group.rows; track row.title) {
+      <div class="row">
+        <span class="icon material-symbols-rounded" aria-hidden="true">{{ row.icon }}</span>
+        <div class="copy">
+          <p class="title">{{ row.title }}</p>
+          <p class="sub">{{ row.sub }}</p>
+        </div>
+        @if (row.pill; as pill) {
+          <span class="pill">{{ pill }}</span>
+        }
+      </div>
+    }
+  </div>
+}

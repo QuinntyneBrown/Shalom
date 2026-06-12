@@ -1,0 +1,26 @@
+<span class="icon material-symbols-rounded" aria-hidden="true">{{ icon() }}</span>
+
+<div class="copy">
+  <p class="title">
+    {{ title() }}
+    @if (soon()) {
+      <span class="soon-pill">soon</span>
+    }
+  </p>
+  <p class="body">{{ body() }}</p>
+  @if (ctaLabel(); as label) {
+    <button type="button" class="cta" data-testid="sh-discovery-cta" (click)="cta.emit()">
+      {{ label }}
+    </button>
+  }
+</div>
+
+<button
+  type="button"
+  class="dismiss"
+  aria-label="Not now"
+  data-testid="sh-discovery-dismiss"
+  (click)="dismissed.emit()"
+>
+  <span class="material-symbols-rounded" aria-hidden="true">close</span>
+</button>

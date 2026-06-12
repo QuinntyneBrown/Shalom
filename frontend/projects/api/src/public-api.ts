@@ -64,6 +64,7 @@ export * from './lib/models/save-person-request';
 export * from './lib/models/important-date-dto';
 export * from './lib/models/add-important-date-request';
 export * from './lib/models/connection-nudge-dto';
+export * from './lib/models/prayer-focus-dto';
 export * from './lib/models/upcoming-date-dto';
 export * from './lib/models/today-people-dto';
 export * from './lib/models/gratitude-entry-dto';

@@ -1,0 +1,173 @@
+@if (step() !== 'complete') {
+  <header class="ritual-head">
+    <button
+      type="button"
+      class="close"
+      aria-label="Close the ritual"
+      data-testid="sh-ritual-close"
+      (click)="close()"
+    >
+      <span class="material-symbols-rounded" aria-hidden="true">close</span>
+    </button>
+    <div class="dots" data-testid="sh-ritual-dots" aria-hidden="true">
+      @for (dot of [1, 2, 3, 4]; track dot) {
+        <span class="dot" [class.done]="dotState(dot) === 'done'"></span>
+      }
+    </div>
+  </header>
+}
+
+@switch (step()) {
+  @case (1) {
+    <section class="step" data-testid="sh-ritual-step-checkin" aria-label="Check-in">
+      <h1 class="ask">How is your soul this morning?</h1>
+
+      <sh-rating-chips class="moods" [(value)]="mood" />
+
+      <p class="eyebrow">Where's your heart toward God?</p>
+      <sh-dot-scale class="closeness" [(value)]="spiritual" />
+
+      <input
+        class="note"
+        type="text"
+        name="note"
+        maxlength="500"
+        placeholder="Name it in a line… (optional)"
+        autocomplete="off"
+        data-testid="sh-ritual-note"
+        [value]="note()"
+        (input)="onNoteInput($event)"
+      />
+    </section>
+
+    <button
+      type="button"
+      class="cta"
+      data-testid="sh-ritual-continue"
+      [disabled]="!canContinue()"
+      (click)="continueCheckIn()"
+    >Continue</button>
+  }
+
+  @case (2) {
+    <section class="step" data-testid="sh-ritual-step-scripture" aria-label="Scripture">
+      @if (verse(); as v) {
+        <p class="eyebrow">Verse of the day</p>
+        <blockquote class="verse" data-testid="sh-ritual-verse-text">{{ v.text }}</blockquote>
+        <p class="reference" data-testid="sh-ritual-verse-ref">{{ v.reference }} · WEB</p>
+        <hr class="divider" />
+      }
+
+      @if (reading(); as r) {
+        <div class="reading-card">
+          <p class="card-eyebrow">Today's reading · Day {{ r.dayNumber }}</p>
+          <h2 class="passage" data-testid="sh-ritual-reading-passage">{{ r.passageReference }}</h2>
+          <a
+            class="youversion"
+            data-testid="sh-ritual-youversion"
+            [href]="r.youVersionUrl"
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>
+            Read the full chapter in YouVersion
+          </a>
+        </div>
+      }
+    </section>
+
+    <button
+      type="button"
+      class="cta"
+      data-testid="sh-ritual-mark-read"
+      (click)="markReadContinue()"
+    >{{ scriptureCta() }}</button>
+  }
+
+  @case (3) {
+    <section class="step" data-testid="sh-ritual-step-prayer" aria-label="Prayer">
+      @if (focus(); as f) {
+        <p class="eyebrow">Today's prayer focus</p>
+        <h1 class="focus-name" data-testid="sh-ritual-focus-name">{{ f.name }}</h1>
+        <p class="focus-line" data-testid="sh-ritual-focus-line">{{ f.line }}</p>
+      }
+      <div class="glow" aria-hidden="true">
+        <span class="material-symbols-rounded">spa</span>
+      </div>
+    </section>
+
+    <button type="button" class="cta" data-testid="sh-ritual-amen" (click)="amen()">Amen</button>
+  }
+
+  @case (4) {
+    <section class="step" data-testid="sh-ritual-step-preview" aria-label="Day preview">
+      <h1 class="ask">Your day, gently</h1>
+
+      <div class="preview-row" data-testid="sh-ritual-preview-window">
+        <span class="tile material-symbols-rounded" aria-hidden="true">timer</span>
+        <div class="copy">
+          <p class="row-title">Eating window</p>
+          <p class="row-sub">{{ windowLine() }}</p>
+        </div>
+      </div>
+
+      <div class="preview-row" data-testid="sh-ritual-preview-movement">
+        <span class="tile material-symbols-rounded" aria-hidden="true">directions_bike</span>
+        <div class="copy">
+          <p class="row-title">Movement</p>
+          @if (intentionSummary(); as summary) {
+            @if (!choosingIntention()) {
+              <p class="row-sub">{{ summary }}</p>
+            }
+          }
+          @if (!intentionSummary() || choosingIntention()) {
+            <div class="intention-chips">
+              @for (option of intentionOptions; track option.value) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.selected]="intention() === option.value"
+                  [attr.data-testid]="'sh-ritual-intention-' + option.value"
+                  (click)="chooseIntention(option.value)"
+                >{{ option.label }}</button>
+              }
+            </div>
+          }
+        </div>
+        @if (intentionSummary() && !choosingIntention()) {
+          <button type="button" class="change" (click)="changeIntention()">change</button>
+        }
+      </div>
+
+      <div class="preview-row" data-testid="sh-ritual-preview-connection">
+        <span class="tile material-symbols-rounded" aria-hidden="true">favorite</span>
+        <div class="copy">
+          <p class="row-title">Connection</p>
+          <p class="row-sub">{{ nudge()?.prompt ?? 'All caught up — enjoy them today.' }}</p>
+        </div>
+      </div>
+    </section>
+
+    <button type="button" class="cta" data-testid="sh-ritual-done" (click)="done()">Done</button>
+  }
+
+  @case ('complete') {
+    <button
+      type="button"
+      class="complete"
+      data-testid="sh-ritual-complete"
+      (click)="close()"
+    >
+      <span class="halo" aria-hidden="true"></span>
+      <span class="shalom">Shalom.</span>
+      <span class="peace">Go in peace. The day is ready for you.</span>
+      @if (streaksVisible()) {
+        <span class="day-badge" data-testid="sh-ritual-day-badge">
+          <span class="material-symbols-rounded" aria-hidden="true">wb_twilight</span>
+          Day {{ dayNumber() }} with you
+        </span>
+      }
+      <span class="tap-hint">tap anywhere to close</span>
+    </button>
+  }
+}

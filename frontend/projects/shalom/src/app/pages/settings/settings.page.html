@@ -1,11 +1,98 @@
 <header class="page-head">
+  <a class="back" routerLink="/today" aria-label="Back to Today">
+    <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+  </a>
   <h1>Settings</h1>
 </header>
 
-<sh-pillar-card
-  icon="settings"
-  title="Preferences"
-  subtitle="Account and app settings"
->
-  <p>Settings will live here.</p>
-</sh-pillar-card>
+<p class="group-label">Rhythm</p>
+<div class="group">
+  <div class="row" data-testid="sh-settings-wake">
+    <span class="icon material-symbols-rounded" aria-hidden="true">alarm</span>
+    <span class="label">Wake time</span>
+    <span class="value">6:00</span>
+  </div>
+  <button
+    type="button"
+    class="row tappable"
+    data-testid="sh-settings-fasting"
+    (click)="openScheduleEditor()"
+  >
+    <span class="icon material-symbols-rounded" aria-hidden="true">timer</span>
+    <span class="label">Fasting schedule</span>
+    <span class="value">{{ scheduleValue() }}</span>
+    <span class="chevron material-symbols-rounded" aria-hidden="true">chevron_right</span>
+  </button>
+  <div class="row" data-testid="sh-settings-quiet-days">
+    <span class="icon material-symbols-rounded" aria-hidden="true">event_busy</span>
+    <span class="label">Quiet days</span>
+    <span class="value">Sun</span>
+  </div>
+</div>
+
+<p class="group-label">Faith</p>
+<div class="group">
+  <div class="row" data-testid="sh-settings-reading-plan">
+    <span class="icon material-symbols-rounded" aria-hidden="true">menu_book</span>
+    <span class="label">Reading plan</span>
+    <span class="value">{{ readingPlanName() }}</span>
+  </div>
+  <div class="row" data-testid="sh-settings-youversion">
+    <span class="icon material-symbols-rounded" aria-hidden="true">translate</span>
+    <span class="label">Read in YouVersion</span>
+    <span class="value">WEB</span>
+  </div>
+</div>
+
+<p class="group-label">Reminders</p>
+<div class="group">
+  <div class="row" data-testid="sh-settings-nudges">
+    <span class="icon material-symbols-rounded" aria-hidden="true">notifications</span>
+    <span class="label">Nudges</span>
+    <span class="value">window only</span>
+  </div>
+  <div class="row" data-testid="sh-settings-calendar">
+    <span class="icon material-symbols-rounded" aria-hidden="true">calendar_month</span>
+    <span class="label">Calendar feed</span>
+    <span class="value">off</span>
+  </div>
+</div>
+
+<p class="group-label">Appearance</p>
+<div class="group">
+  <div class="row theme-row" data-testid="sh-settings-theme">
+    <span class="icon material-symbols-rounded" aria-hidden="true">routine</span>
+    <span class="label">Theme</span>
+    <span class="theme-chips">
+      @for (option of themeOptions; track option) {
+        <button
+          type="button"
+          class="theme-chip"
+          [class.selected]="theme.preference() === option"
+          [attr.data-testid]="'sh-settings-theme-' + option"
+          (click)="setTheme(option)"
+        >{{ option }}</button>
+      }
+    </span>
+  </div>
+</div>
+
+<p class="group-label">Shalom</p>
+<div class="group">
+  <a class="row tappable" routerLink="/settings/everything" data-testid="sh-settings-everything">
+    <span class="icon material-symbols-rounded" aria-hidden="true">auto_stories</span>
+    <span class="label">Everything Shalom can do</span>
+    <span class="chevron material-symbols-rounded" aria-hidden="true">chevron_right</span>
+  </a>
+  <div class="row" data-testid="sh-settings-about">
+    <span class="icon material-symbols-rounded" aria-hidden="true">info</span>
+    <span class="label">About</span>
+    <span class="value">0.1</span>
+  </div>
+</div>
+
+<div class="group sign-out-group">
+  <button type="button" class="row sign-out" data-testid="sh-settings-sign-out" (click)="signOut()">
+    Sign out
+  </button>
+</div>

@@ -1,35 +1,41 @@
 import { expect, test } from '../fixtures/sh-test';
 
-test.describe('reading plan', () => {
+/**
+ * The reading plan surfaces inside ritual step 2 (M6). Repeat-safe: today's
+ * surfaced reading is uncompleted through the API before driving the UI.
+ */
+test.describe('reading plan (ritual step 2)', () => {
   test.beforeEach(async ({ api }) => {
-    // Make the run repeatable: if today's surfaced reading was already
-    // completed (by an earlier run on the same local day), uncomplete it
-    // through the API before driving the UI.
     const today = await api.getToday();
     if (today.reading?.completedToday) {
       await api.uncompleteDay(today.reading.dayId);
     }
   });
 
-  test('marking the reading read shows the completed state and bumps the count', async ({
+  test('Mark read · Continue completes the day and bumps the count', async ({
+    api,
     pages,
     signInAsSeededUser,
   }) => {
+    const before = await api.getToday();
+    expect(before.reading).not.toBeNull();
+
     await signInAsSeededUser();
+    await pages.ritual.navigate();
+    await pages.ritual.completeCheckIn('Steady', 3);
 
-    await expect(pages.today.readingCard).toBeVisible();
-    await expect(pages.today.readingPlanName).toHaveText('John & His Letters');
-    const before = await pages.today.completedCount();
+    await expect(pages.ritual.stepScripture).toBeVisible();
+    await expect(pages.ritual.readingPassage).toHaveText(before.reading!.passageReference);
+    await expect(pages.ritual.markReadButton).toContainText('Mark read · Continue');
+    await pages.ritual.markReadButton.click();
 
-    await expect(pages.today.markReadButton).toBeVisible();
-    await pages.today.markReadButton.click();
-
-    await expect(pages.today.readingDone).toBeVisible();
-    await expect(pages.today.readingDone).toContainText('Read today');
-    await expect(pages.today.markReadButton).toHaveCount(0);
-
-    await expect(pages.today.readingProgress).toContainText(`${before + 1} of`);
-    await expect(pages.today.streaks).toContainText(/[1-9]\d*-day reading rhythm/);
+    // Advances to prayer at once; the completion lands server-side.
+    await expect(pages.ritual.stepPrayer).toBeVisible();
+    await expect(async () => {
+      const after = await api.getToday();
+      expect(after.reading?.completedToday).toBe(true);
+      expect(after.reading?.completedCount).toBe(before.reading!.completedCount + 1);
+    }).toPass();
   });
 
   test('the YouVersion link points at bible.com and opens in a new tab', async ({
@@ -37,19 +43,17 @@ test.describe('reading plan', () => {
     signInAsSeededUser,
   }) => {
     await signInAsSeededUser();
+    await pages.ritual.navigate();
+    await pages.ritual.completeCheckIn('Steady', 3);
 
-    // Assert the href/target without navigating — we never actually
-    // leave for YouVersion inside the suite.
-    await expect(pages.today.readingLink).toHaveAttribute(
+    // Assert the href/target without navigating — we never actually leave
+    // for YouVersion inside the suite.
+    await expect(pages.ritual.youVersionLink).toHaveAttribute(
       'href',
       /^https:\/\/www\.bible\.com\/bible\/111\//,
     );
-    await expect(pages.today.readingLink).toHaveAttribute('target', '_blank');
-
-    await expect(pages.today.verseLink).toHaveAttribute(
-      'href',
-      /^https:\/\/www\.bible\.com\/bible\/111\//,
-    );
-    await expect(pages.today.verseLink).toHaveAttribute('target', '_blank');
+    await expect(pages.ritual.youVersionLink).toHaveAttribute('target', '_blank');
+    await expect(pages.ritual.verseText).not.toBeEmpty();
+    await expect(pages.ritual.verseReference).toContainText('WEB');
   });
 });

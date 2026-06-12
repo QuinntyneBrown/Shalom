@@ -29,6 +29,7 @@ const todayDto: TodayDto = {
     planName: 'John & His Letters',
     completedCount: 0,
     totalDays: 28,
+    nextPassageReference: 'John 1',
   },
   streaks: {
     checkInCurrent: 0,
@@ -47,7 +48,12 @@ const todayDto: TodayDto = {
     targetHours: 16,
   },
   health: { todaysWorkouts: [], lastMeal: null },
-  people: { nudge: null, upcomingDates: [] },
+  people: {
+    nudge: null,
+    upcomingDates: [],
+    prayerFocus: { name: 'your church', line: 'Pray for its people and its peace.', tomorrowName: 'FaithTech' },
+  },
+  ritualCompletedToday: false,
 };
 
 describe('TodayService', () => {

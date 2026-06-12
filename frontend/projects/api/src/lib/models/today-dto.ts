@@ -21,4 +21,10 @@ export interface TodayDto {
   readonly fasting: TodayFastingDto;
   readonly health: TodayHealthDto;
   readonly people: TodayPeopleDto;
+  /**
+   * Server-derived: a check-in exists for today AND the reading is either
+   * absent or marked read today. Gates the Today hero between "Begin your
+   * morning" and the compact morning-complete card.
+   */
+  readonly ritualCompletedToday: boolean;
 }

@@ -1,0 +1,99 @@
+<div class="grab" aria-hidden="true"></div>
+<h2 class="title">Fasting schedule</h2>
+<p class="subtitle">{{ ratio() }} — the window is yours to shape.</p>
+
+<div class="field-row">
+  <label class="field">
+    <span class="field-label">Window opens</span>
+    <input
+      type="time"
+      class="time"
+      data-testid="sh-sheet-schedule-start"
+      [value]="windowStart()"
+      (input)="onTimeInput('windowStart', $event)"
+    />
+  </label>
+  <label class="field">
+    <span class="field-label">Window closes</span>
+    <input
+      type="time"
+      class="time"
+      data-testid="sh-sheet-schedule-end"
+      [value]="windowEnd()"
+      (input)="onTimeInput('windowEnd', $event)"
+    />
+  </label>
+</div>
+
+<div class="target-row">
+  <span class="field-label">Fast target</span>
+  <div class="stepper">
+    <button
+      type="button"
+      class="step"
+      aria-label="Shorter fast"
+      data-testid="sh-sheet-schedule-target-minus"
+      (click)="stepTarget(-1)"
+    >−</button>
+    <span class="hours" data-testid="sh-sheet-schedule-target">{{ targetHours() }}h</span>
+    <button
+      type="button"
+      class="step"
+      aria-label="Longer fast"
+      data-testid="sh-sheet-schedule-target-plus"
+      (click)="stepTarget(1)"
+    >+</button>
+  </div>
+</div>
+
+<div class="sunday">
+  <div class="sunday-head">
+    <span class="field-label">Sunday</span>
+    <button
+      type="button"
+      class="toggle"
+      role="switch"
+      [attr.aria-checked]="sundayEnabled()"
+      data-testid="sh-sheet-schedule-sunday-toggle"
+      [class.on]="sundayEnabled()"
+      (click)="toggleSunday()"
+    >
+      <span class="knob" aria-hidden="true"></span>
+    </button>
+  </div>
+  @if (sundayEnabled()) {
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Opens</span>
+        <input
+          type="time"
+          class="time"
+          data-testid="sh-sheet-schedule-sunday-start"
+          [value]="sundayStart()"
+          (input)="onTimeInput('sundayStart', $event)"
+        />
+      </label>
+      <label class="field">
+        <span class="field-label">Closes</span>
+        <input
+          type="time"
+          class="time"
+          data-testid="sh-sheet-schedule-sunday-end"
+          [value]="sundayEnd()"
+          (input)="onTimeInput('sundayEnd', $event)"
+        />
+      </label>
+    </div>
+  }
+  <p class="footnote">
+    Sunday lunch after church is part of the rhythm — the streak's grace already knows.
+  </p>
+</div>
+
+<button
+  type="button"
+  class="save"
+  data-testid="sh-sheet-save-schedule"
+  [disabled]="!canSave()"
+  (click)="save()"
+>{{ saving() ? 'Saving…' : 'Save schedule' }}</button>

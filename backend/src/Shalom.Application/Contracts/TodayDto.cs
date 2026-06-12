@@ -17,4 +17,5 @@ public record TodayDto(
     TodayStreaksDto Streaks,
     TodayFastingDto Fasting,
     TodayHealthDto Health,
-    TodayPeopleDto People);
+    TodayPeopleDto People,
+    bool RitualCompletedToday);

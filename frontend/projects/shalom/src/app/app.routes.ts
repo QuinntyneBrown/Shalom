@@ -9,8 +9,10 @@ import { requireAuth } from './auth/require-auth.guard';
  * - `/` redirects to `/today`, the default pillar.
  * - `/sign-in` is the only public surface; signed-in visitors are bounced
  *   back to `/today` by `requireAnonymous`.
- * - The app surfaces (`/today`, `/health`, `/health/fasting`, `/people`,
- *   `/people/:id`, `/settings`) are all guarded by `requireAuth`.
+ * - The app surfaces (`/today`, `/today/ritual`, `/health`,
+ *   `/health/fasting`, `/people`, `/people/:id`, `/settings`,
+ *   `/settings/everything`) are all guarded by `requireAuth`; the ritual
+ *   runs in the nav-less `'ritual'` shell.
  * - `**` lands on the not-found page.
  */
 export const routes: Routes = [
@@ -31,6 +33,13 @@ export const routes: Routes = [
     canActivate: [requireAuth],
     loadComponent: () =>
       import('./pages/today/today.page').then((m) => m.TodayPage),
+  },
+  {
+    path: 'today/ritual',
+    data: { shell: 'ritual' },
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/ritual/ritual.page').then((m) => m.RitualPage),
   },
   {
     path: 'health',
@@ -61,6 +70,12 @@ export const routes: Routes = [
     canActivate: [requireAuth],
     loadComponent: () =>
       import('./pages/settings/settings.page').then((m) => m.SettingsPage),
+  },
+  {
+    path: 'settings/everything',
+    canActivate: [requireAuth],
+    loadComponent: () =>
+      import('./pages/everything/everything.page').then((m) => m.EverythingPage),
   },
   {
     path: '**',

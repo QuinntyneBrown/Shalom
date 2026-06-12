@@ -8,8 +8,9 @@ on :5100), Page Object Model layout (saturdaze precedent):
 - `helpers/` — per-page selector maps (+ `dates.ts` local-date helpers)
 - `fixtures/` — the `test` fixture (`sh-test.ts`: POMs + authenticated API
   helper) and seeded credentials (`users.ts`)
-- `tests/` — hand-written specs (`auth`, `check-in`, `reading`, `fasting`,
-  `workouts`, `meals`)
+- `tests/` — hand-written specs (`auth`, `today` (morning ritual flow),
+  `night`, `check-in`, `reading`, `fasting`, `workouts`, `meals`, `people`,
+  `nudge`, `accessibility` (axe sweep))
 - `scripts/prepare.mjs` — database prep (see below)
 
 ## Running
@@ -28,6 +29,26 @@ first.
 
 Projects: `mobile` (390x844, primary), `tablet` (820x1180), `desktop`
 (1440x900). One worker, no parallelism — specs share one seeded database.
+
+## Deterministic clock (`pinClock`)
+
+Today is time-aware (morning / midday / evening / night bands, dawn theme),
+so specs must not depend on when the suite runs. The app reads device time
+through one helper (`appNow()`), which honors `window.__shTestNow` ONLY when
+`localStorage['sh.testMode'] === '1'`. The fixture pins **08:00 local of the
+real current date** for every test via `addInitScript` (the date must stay
+the real one so server-derived local days match). To pin a different moment,
+call `pinClock(page, iso)` from `fixtures/sh-test.ts` BEFORE navigating —
+init scripts run in order, so the later pin wins:
+
+```ts
+import { localIsoDate, pinClock, test } from '../fixtures/sh-test';
+
+await pinClock(page, `${localIsoDate()}T23:00:00`); // night band
+```
+
+Production traffic never trips the hook: `sh.testMode` is only ever written
+by the fixtures.
 
 ## Database prep (`scripts/prepare.mjs`)
 

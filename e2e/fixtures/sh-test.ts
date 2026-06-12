@@ -11,12 +11,13 @@
  * Specs import `test`/`expect` from this file, not `@playwright/test`.
  */
 
-import { APIRequestContext, expect, test as base } from '@playwright/test';
+import { APIRequestContext, Page, expect, test as base } from '@playwright/test';
 
 import { FastDetailPage } from '../pages/fast-detail.page';
 import { HealthPage } from '../pages/health.page';
 import { PeoplePage } from '../pages/people.page';
 import { PersonDetailPage } from '../pages/person-detail.page';
+import { RitualPage } from '../pages/ritual.page';
 import { SignInPage } from '../pages/sign-in.page';
 import { TodayPage } from '../pages/today.page';
 import { SEEDED_USER } from './users';
@@ -26,10 +27,29 @@ export const API_URL = 'http://localhost:5100';
 interface Pages {
   signIn: SignInPage;
   today: TodayPage;
+  ritual: RitualPage;
   health: HealthPage;
   fastDetail: FastDetailPage;
   people: PeoplePage;
   personDetail: PersonDetailPage;
+}
+
+/**
+ * Pins the app's clock (`appNow()`) for this page. The app honors
+ * `window.__shTestNow` ONLY while `localStorage['sh.testMode'] === '1'` —
+ * both are injected before any app script runs. Call BEFORE navigating;
+ * the last pin wins (the auto fixture pins 08:00 local, so every spec
+ * starts in a deterministic morning regardless of when the suite runs).
+ */
+export async function pinClock(page: Page, iso: string): Promise<void> {
+  await page.addInitScript((pinned) => {
+    try {
+      window.localStorage.setItem('sh.testMode', '1');
+      (window as unknown as { __shTestNow?: string }).__shTestNow = pinned;
+    } catch {
+      // about:blank and friends — the app origin will run this again.
+    }
+  }, iso);
 }
 
 export interface TodayReading {
@@ -43,11 +63,35 @@ export interface TodayReading {
   totalDays: number;
 }
 
+export interface TodayStreaks {
+  checkInCurrent: number;
+  checkInLongest: number;
+  readingCurrent: number;
+  readingLongest: number;
+  fastingCurrent: number;
+  fastingLongest: number;
+  movementCurrent: number;
+  movementLongest: number;
+}
+
+export interface PrayerFocus {
+  name: string;
+  line: string;
+  tomorrowName: string;
+}
+
 export interface TodayAggregate {
   date: string;
   greetingName: string;
   checkIn: unknown | null;
   reading: TodayReading | null;
+  streaks: TodayStreaks;
+  ritualCompletedToday: boolean;
+  people: {
+    nudge: NudgeRow | null;
+    upcomingDates: unknown[];
+    prayerFocus: PrayerFocus;
+  };
 }
 
 export interface FastSession {
@@ -273,13 +317,26 @@ interface ShFixtures {
   pages: Pages;
   api: ShalomApi;
   signInAsSeededUser: () => Promise<void>;
+  pinnedMorning: string;
 }
 
 export const test = base.extend<ShFixtures>({
+  // Every spec starts at a deterministic 08:00 local morning (today's real
+  // date, so server-derived local days still match). Re-pin with pinClock()
+  // for midday/evening/night scenarios.
+  pinnedMorning: [
+    async ({ page }, use) => {
+      const iso = `${localIsoDate()}T08:00:00`;
+      await pinClock(page, iso);
+      await use(iso);
+    },
+    { auto: true },
+  ],
   pages: async ({ page }, use) => {
     await use({
       signIn: new SignInPage(page),
       today: new TodayPage(page),
+      ritual: new RitualPage(page),
       health: new HealthPage(page),
       fastDetail: new FastDetailPage(page),
       people: new PeoplePage(page),

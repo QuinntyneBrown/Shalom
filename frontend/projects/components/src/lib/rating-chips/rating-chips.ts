@@ -15,13 +15,18 @@ export interface RatingChip {
   readonly label: string;
 }
 
-const CHIPS: readonly RatingChip[] = [
-  { value: 1, label: 'Heavy' },
-  { value: 2, label: 'Tense' },
-  { value: 3, label: 'Flat' },
-  { value: 4, label: 'Steady' },
-  { value: 5, label: 'Full' },
-];
+/** Mood word per rating — shared with the "felt Steady" summaries. */
+export const MOOD_LABELS: Record<number, string> = {
+  1: 'Heavy',
+  2: 'Tense',
+  3: 'Flat',
+  4: 'Steady',
+  5: 'Full',
+};
+
+const CHIPS: readonly RatingChip[] = Object.entries(MOOD_LABELS).map(
+  ([value, label]) => ({ value: Number(value), label }),
+);
 
 @Component({
   selector: 'sh-rating-chips',

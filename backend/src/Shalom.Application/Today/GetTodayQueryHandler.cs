@@ -46,7 +46,13 @@ public class GetTodayQueryHandler : IRequestHandler<GetTodayQuery, TodayDto>
         var streaks = await GetStreaksAsync(userId, today, ct);
         var people = await GetPeopleAsync(userId, today, ct);
 
-        return new TodayDto(today, GreetingName(user.Email), checkIn, verse, reading, streaks, fasting, health, people);
+        // The morning ritual is done for today once the check-in is saved and
+        // the reading is either marked read or there is no reading to do.
+        var ritualCompletedToday = checkIn is not null && (reading is null || reading.CompletedToday);
+
+        return new TodayDto(
+            today, GreetingName(user.Email), checkIn, verse, reading, streaks, fasting, health, people,
+            ritualCompletedToday);
     }
 
     /// <summary>Email prefix until a profile name exists (the User entity has none yet).</summary>
@@ -90,6 +96,11 @@ public class GetTodayQueryHandler : IRequestHandler<GetTodayQuery, TodayDto>
             ?? days.FirstOrDefault(d => d.CompletedOn is null);
         if (current is null) return null;
 
+        // Tomorrow's likely passage: the first day still uncompleted — the
+        // current one while today's isn't done, the next one after it once it
+        // is. Null when completing today finished the plan.
+        var next = days.FirstOrDefault(d => d.CompletedOn is null);
+
         return new TodayReadingDto(
             current.Id,
             current.DayNumber,
@@ -98,7 +109,8 @@ public class GetTodayQueryHandler : IRequestHandler<GetTodayQuery, TodayDto>
             current.CompletedOn == today,
             plan.Name,
             days.Count(d => d.CompletedOn is not null),
-            days.Count);
+            days.Count,
+            next?.PassageReference);
     }
 
     /// <summary>
@@ -186,7 +198,10 @@ public class GetTodayQueryHandler : IRequestHandler<GetTodayQuery, TodayDto>
                 x.Date.PersonId, byId[x.Date.PersonId].Name, x.Date.Label, x.Next, x.DaysUntil))
             .ToList();
 
-        return new TodayPeopleDto(SelectNudge(people, upcoming, today), upcoming);
+        return new TodayPeopleDto(
+            SelectNudge(people, upcoming, today),
+            upcoming,
+            PrayerFocus.For(people, today));
     }
 
     private static ConnectionNudgeDto? SelectNudge(

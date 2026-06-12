@@ -1,10 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
 
 import {
   CHECK_INS_SERVICE,
-  CheckInDto,
+  FASTING_SERVICE,
   ICheckInsService,
+  IFastingService,
   IPeopleService,
   IReadingService,
   ITodayService,
@@ -12,8 +15,9 @@ import {
   READING_SERVICE,
   TODAY_SERVICE,
   TodayDto,
-  UpsertCheckInRequest,
 } from 'api';
+
+import { SheetOpener } from '../../dialogs/sheet';
 import { TodayPage } from './today.page';
 
 const baseToday: TodayDto = {
@@ -21,112 +25,109 @@ const baseToday: TodayDto = {
   greetingName: 'quinntynebrown',
   checkIn: null,
   verse: {
-    reference: 'John 3:16',
-    text: 'For God so loved the world, that he gave his only born Son.',
-    youVersionUrl: 'https://www.bible.com/bible/111/JHN.3.16',
+    reference: 'Psalm 143:8',
+    text: 'Cause me to hear your loving kindness in the morning, for I trust in you.',
+    youVersionUrl: 'https://www.bible.com/bible/111/PSA.143.8',
   },
   reading: {
-    dayId: 'day-1',
-    dayNumber: 1,
-    passageReference: 'John 1',
-    youVersionUrl: 'https://www.bible.com/bible/111/JHN.1',
+    dayId: 'day-12',
+    dayNumber: 12,
+    passageReference: 'John 12',
+    youVersionUrl: 'https://www.bible.com/bible/111/JHN.12',
     completedToday: false,
     planName: 'John & His Letters',
-    completedCount: 0,
+    completedCount: 11,
     totalDays: 28,
+    nextPassageReference: 'John 13',
   },
   streaks: {
-    checkInCurrent: 0,
-    checkInLongest: 0,
-    readingCurrent: 0,
-    readingLongest: 0,
-    fastingCurrent: 0,
-    fastingLongest: 0,
-    movementCurrent: 0,
-    movementLongest: 0,
+    checkInCurrent: 11,
+    checkInLongest: 11,
+    readingCurrent: 11,
+    readingLongest: 11,
+    fastingCurrent: 4,
+    fastingLongest: 6,
+    movementCurrent: 4,
+    movementLongest: 5,
   },
   fasting: {
-    current: null,
-    todayWindow: { start: '12:00:00', end: '20:00:00' },
+    current: {
+      id: 'fast-1',
+      startedAt: '2026-06-11T23:00:00Z',
+      targetHours: 16,
+      endedAt: null,
+      elapsedHours: 11.4,
+      outcome: null,
+    },
+    todayWindow: { start: '11:00:00', end: '19:00:00' },
     windowOpen: false,
     targetHours: 16,
   },
   health: { todaysWorkouts: [], lastMeal: null },
-  people: { nudge: null, upcomingDates: [] },
+  people: {
+    nudge: {
+      personId: 'p-1',
+      name: 'Vanessa',
+      relationship: 'Wife',
+      prompt: 'Tell Vanessa one thing you appreciated about her this week.',
+      phone: '+1 416 555 0100',
+    },
+    upcomingDates: [],
+    prayerFocus: { name: 'Vanessa', line: 'Thank God for her.', tomorrowName: 'Olivia' },
+  },
+  ritualCompletedToday: false,
 };
 
-const natalieNudge = {
-  personId: 'p-1',
-  name: 'Natalie',
-  relationship: 'Wife',
-  prompt: 'Tell Natalie one thing you appreciated about her this week.',
-  phone: '+1 416 555 0100',
-};
+function pinClock(iso: string): void {
+  localStorage.setItem('sh.testMode', '1');
+  (window as { __shTestNow?: string }).__shTestNow = iso;
+}
 
 describe('TodayPage', () => {
   let fixture: ComponentFixture<TodayPage>;
-  let todayResponse: TodayDto;
-  let upsertCalls: UpsertCheckInRequest[];
-  let completedDayIds: string[];
   let contactedIds: string[];
   let snoozedIds: string[];
+  let endFastCalls: number;
+  let openSheet: ReturnType<typeof vi.fn>;
 
   async function setup(dto: TodayDto): Promise<void> {
-    todayResponse = dto;
-    upsertCalls = [];
-    completedDayIds = [];
     contactedIds = [];
     snoozedIds = [];
+    endFastCalls = 0;
+    openSheet = vi.fn(() => ({ closed: of(undefined) }));
 
-    const todayMock: ITodayService = {
-      getToday: async () => todayResponse,
-    };
-    const checkInsMock: ICheckInsService = {
-      upsertToday: async (req) => {
-        upsertCalls.push(req);
-        const saved: CheckInDto = {
-          id: 'c-1',
-          date: todayResponse.date,
-          moodRating: req.moodRating,
-          spiritualRating: req.spiritualRating,
-          note: req.note ?? null,
-        };
-        return saved;
-      },
-      list: async () => [],
-    };
-    const readingMock: IReadingService = {
-      getPlan: async () => {
-        throw new Error('not used');
-      },
-      completeDay: async (dayId) => {
-        completedDayIds.push(dayId);
-        todayResponse = {
-          ...todayResponse,
-          reading: todayResponse.reading
-            ? { ...todayResponse.reading, completedToday: true, completedCount: 1 }
-            : null,
-        };
+    // `current` mirrors the server view so background refetches stay
+    // consistent with the mutation that just happened.
+    let current = dto;
+    const todayMock: ITodayService = { getToday: async () => current };
+    const checkInsMock = { upsertToday: vi.fn(), list: async () => [] } as unknown as ICheckInsService;
+    const readingMock = {
+      completeDay: vi.fn(),
+      uncompleteDay: vi.fn(),
+      getPlan: vi.fn(),
+    } as unknown as IReadingService;
+    const fastingMock = {
+      end: async () => {
+        endFastCalls++;
         return {
-          id: dayId,
-          dayNumber: 1,
-          passageReference: 'John 1',
-          youVersionUrl: 'https://www.bible.com/bible/111/JHN.1',
-          completedOn: todayResponse.date,
+          id: 'fast-1',
+          startedAt: '2026-06-11T23:00:00Z',
+          targetHours: 16,
+          endedAt: '2026-06-12T11:00:00Z',
+          elapsedHours: 12,
+          outcome: 'EndedEarly' as const,
         };
       },
-      uncompleteDay: async () => undefined,
-    };
+    } as unknown as IFastingService;
     const peopleMock = {
       recordContact: async (id: string) => {
         contactedIds.push(id);
-        // The server suppresses the nudge once anyone was contacted today.
-        todayResponse = { ...todayResponse, people: { ...todayResponse.people, nudge: null } };
+        current = { ...current, people: { ...current.people, nudge: null } };
         return {} as never;
       },
       snooze: async (id: string) => {
         snoozedIds.push(id);
-        todayResponse = { ...todayResponse, people: { ...todayResponse.people, nudge: null } };
+        current = { ...current, people: { ...current.people, nudge: null } };
         return {} as never;
       },
     } as unknown as IPeopleService;
@@ -138,7 +139,9 @@ describe('TodayPage', () => {
         { provide: TODAY_SERVICE, useValue: todayMock },
         { provide: CHECK_INS_SERVICE, useValue: checkInsMock },
         { provide: READING_SERVICE, useValue: readingMock },
+        { provide: FASTING_SERVICE, useValue: fastingMock },
         { provide: PEOPLE_SERVICE, useValue: peopleMock },
+        { provide: SheetOpener, useValue: { open: openSheet } },
       ],
     }).compileComponents();
 
@@ -148,191 +151,196 @@ describe('TodayPage', () => {
     fixture.detectChanges();
   }
 
-  it('renders greeting, verse, and reading from GET /api/today', async () => {
-    await setup(baseToday);
-    const el: HTMLElement = fixture.nativeElement;
-
-    expect(el.querySelector('.greeting')?.textContent).toContain('quinntynebrown');
-    expect(el.querySelector('sh-verse-card .text')?.textContent).toContain(
-      'For God so loved the world',
-    );
-    expect(el.querySelector('sh-reading-card .passage')?.textContent).toContain('John 1');
+  beforeEach(() => {
+    localStorage.clear();
+    delete (window as { __shTestNow?: string }).__shTestNow;
   });
 
-  it('saves a check-in through the token service and shows the saved state', async () => {
-    await setup(baseToday);
-    const el: HTMLElement = fixture.nativeElement;
+  function el(): HTMLElement {
+    return fixture.nativeElement as HTMLElement;
+  }
 
-    (el.querySelectorAll('sh-rating-chips button.chip')[3] as HTMLButtonElement).click(); // Steady
-    (el.querySelectorAll('sh-dot-scale button.dot')[2] as HTMLButtonElement).click(); // 3
-    fixture.detectChanges();
+  function byTestId<T extends HTMLElement>(id: string): T | null {
+    return el().querySelector<T>(`[data-testid="${id}"]`);
+  }
 
-    const save = el.querySelector('button.save') as HTMLButtonElement;
-    expect(save.disabled).toBe(false);
-    save.click();
-    await fixture.whenStable();
-    fixture.detectChanges();
+  describe('morning', () => {
+    it('shows the ritual hero with the streak badge, fasting, movement, and connection', async () => {
+      pinClock('2026-06-12T06:11:00');
+      await setup(baseToday);
 
-    expect(upsertCalls).toEqual([{ moodRating: 4, spiritualRating: 3, note: null }]);
-    expect(el.querySelector('.saved-badge')?.textContent?.trim()).toBe('Saved');
-  });
+      expect(el().querySelector('h1.greeting')!.textContent).toContain('Good morning, quinntynebrown');
+      expect(byTestId('sh-today-status-pill')!.textContent).toMatch(/Fasting · \d+h \d+m · opens 11:00/);
 
-  it('disables save until both ratings are chosen', async () => {
-    await setup(baseToday);
-    const el: HTMLElement = fixture.nativeElement;
+      const hero = byTestId('sh-ritual-hero')!;
+      expect(hero.textContent).toContain('Begin your morning');
+      expect(hero.textContent).toContain('Check-in · Scripture · Prayer — about 2 minutes');
+      expect(byTestId('sh-today-day-badge')!.textContent).toContain('Day 11');
+      expect(byTestId<HTMLAnchorElement>('sh-ritual-begin')!.getAttribute('href')).toBe('/today/ritual');
 
-    const save = el.querySelector('button.save') as HTMLButtonElement;
-    expect(save.disabled).toBe(true);
-
-    (el.querySelectorAll('sh-rating-chips button.chip')[0] as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(save.disabled).toBe(true);
-
-    (el.querySelectorAll('sh-dot-scale button.dot')[0] as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(save.disabled).toBe(false);
-  });
-
-  it('pre-selects chips from a saved check-in on load', async () => {
-    await setup({
-      ...baseToday,
-      checkIn: { id: 'c-1', date: '2026-06-12', moodRating: 4, spiritualRating: 3, note: 'calm' },
-    });
-    const el: HTMLElement = fixture.nativeElement;
-
-    const chips = el.querySelectorAll('sh-rating-chips button.chip');
-    expect(chips[3].classList.contains('selected')).toBe(true);
-    const dots = el.querySelectorAll('sh-dot-scale button.dot');
-    expect(dots[2].classList.contains('selected')).toBe(true);
-    expect((el.querySelector('input.note') as HTMLInputElement).value).toBe('calm');
-    expect(el.querySelector('.saved-badge')).not.toBeNull();
-  });
-
-  it('renders the compact fasting card with the window line', async () => {
-    await setup({
-      ...baseToday,
-      fasting: {
-        current: {
-          id: 'fast-1',
-          startedAt: new Date(Date.now() - 11.4 * 3_600_000).toISOString(),
-          targetHours: 16,
-          endedAt: null,
-          elapsedHours: 11.4,
-          outcome: null,
-        },
-        todayWindow: { start: '11:00:00', end: '19:00:00' },
-        windowOpen: false,
-        targetHours: 16,
-      },
-    });
-    const el: HTMLElement = fixture.nativeElement;
-
-    expect(el.querySelector('[data-testid="sh-today-fasting-elapsed"]')?.textContent).toContain('11h');
-    expect(el.querySelector('[data-testid="sh-today-fasting-window"]')?.textContent).toContain(
-      'Window opens at 11:00',
-    );
-    expect(el.querySelector('.fasting-card .ratio')?.textContent).toBe('16:8');
-    expect(el.querySelector('.fasting-card sh-progress-ring')).not.toBeNull();
-  });
-
-  it('shows the quiet not-fasting state when no fast is open', async () => {
-    await setup({
-      ...baseToday,
-      fasting: { ...baseToday.fasting, windowOpen: true },
-    });
-    const el: HTMLElement = fixture.nativeElement;
-
-    expect(el.querySelector('[data-testid="sh-today-fasting-elapsed"]')?.textContent?.trim()).toBe(
-      'Not fasting',
-    );
-    expect(el.querySelector('[data-testid="sh-today-fasting-window"]')?.textContent).toContain(
-      'Window open until 20:00',
-    );
-  });
-
-  it('marking the reading read completes the day and refreshes the aggregate', async () => {
-    await setup(baseToday);
-    const el: HTMLElement = fixture.nativeElement;
-
-    (el.querySelector('sh-reading-card .mark-read') as HTMLButtonElement).click();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(completedDayIds).toEqual(['day-1']);
-    expect(el.querySelector('sh-reading-card .mark-read')).toBeNull();
-    expect(el.querySelector('sh-reading-card .done')?.textContent).toContain('Read today');
-    expect(el.querySelector('sh-reading-card .progress')?.textContent?.trim()).toBe('1 of 28 read');
-  });
-
-  it('renders the connection card with the server-selected nudge and an sms quick action', async () => {
-    await setup({ ...baseToday, people: { nudge: natalieNudge, upcomingDates: [] } });
-    const el: HTMLElement = fixture.nativeElement;
-
-    expect(el.querySelector('[data-testid="sh-today-connection-prompt"]')?.textContent?.trim()).toBe(
-      natalieNudge.prompt,
-    );
-    const text = el.querySelector('[data-testid="sh-today-connection-text"]') as HTMLAnchorElement;
-    expect(text.getAttribute('href')).toContain('sms:+1 416 555 0100&body=');
-  });
-
-  it('hides the connection card entirely when the server sends no nudge', async () => {
-    await setup(baseToday);
-
-    expect(fixture.nativeElement.querySelector('[data-testid="sh-today-connection"]')).toBeNull();
-  });
-
-  it('Done records the contact and the refetched aggregate clears the card', async () => {
-    await setup({ ...baseToday, people: { nudge: natalieNudge, upcomingDates: [] } });
-    const el: HTMLElement = fixture.nativeElement;
-
-    (el.querySelector('[data-testid="sh-today-connection-done"]') as HTMLButtonElement).click();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(contactedIds).toEqual(['p-1']);
-    expect(el.querySelector('[data-testid="sh-today-connection"]')).toBeNull();
-  });
-
-  it('Not today snoozes and the refetched aggregate clears the card', async () => {
-    await setup({ ...baseToday, people: { nudge: natalieNudge, upcomingDates: [] } });
-    const el: HTMLElement = fixture.nativeElement;
-
-    (el.querySelector('[data-testid="sh-today-connection-snooze"]') as HTMLButtonElement).click();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(snoozedIds).toEqual(['p-1']);
-    expect(el.querySelector('[data-testid="sh-today-connection"]')).toBeNull();
-  });
-
-  it('shows the nearest upcoming important date as a quiet line', async () => {
-    await setup({
-      ...baseToday,
-      people: {
-        nudge: null,
-        upcomingDates: [
-          { personId: 'p-2', personName: 'Maya', label: 'Birthday', date: '2026-06-17', daysUntil: 5 },
-          { personId: 'p-1', personName: 'Natalie', label: 'Anniversary', date: '2026-06-19', daysUntil: 7 },
-        ],
-      },
+      expect(byTestId('sh-today-fasting')).not.toBeNull();
+      expect(byTestId('sh-today-fasting-window')!.textContent).toContain('Window opens at 11:00 — going strong');
+      expect(byTestId('sh-today-movement')!.textContent).toContain('What feels right today?');
+      expect(byTestId('sh-today-connection-prompt')!.textContent).toContain('Vanessa');
+      expect(el().querySelector('p.streaks')!.textContent).toContain('11-day check-in rhythm');
     });
 
-    const line = fixture.nativeElement.querySelector('[data-testid="sh-today-upcoming-date"]');
-    expect(line?.textContent).toContain('Maya — Birthday in 5 days');
-  });
+    it('replaces the hero with the compact morning-complete card once the ritual is done', async () => {
+      pinClock('2026-06-12T08:00:00');
+      await setup({
+        ...baseToday,
+        checkIn: { id: 'c-1', date: '2026-06-12', moodRating: 4, spiritualRating: 3, note: null },
+        reading: { ...baseToday.reading!, completedToday: true },
+        ritualCompletedToday: true,
+      });
 
-  it('says "today" when the upcoming date is the day of', async () => {
-    await setup({
-      ...baseToday,
-      people: {
-        nudge: null,
-        upcomingDates: [
-          { personId: 'p-2', personName: 'Maya', label: 'Birthday', date: '2026-06-12', daysUntil: 0 },
-        ],
-      },
+      expect(byTestId('sh-ritual-hero')).toBeNull();
+      const complete = byTestId('sh-today-morning-complete')!;
+      expect(complete.textContent).toContain('Morning complete');
+      expect(complete.textContent).toContain('Psalm 143:8 · felt Steady');
     });
 
-    const line = fixture.nativeElement.querySelector('[data-testid="sh-today-upcoming-date"]');
-    expect(line?.textContent).toContain('Maya — Birthday today');
+    it('hides every streak surface before three completed mornings', async () => {
+      pinClock('2026-06-12T06:11:00');
+      await setup({
+        ...baseToday,
+        streaks: { ...baseToday.streaks, checkInCurrent: 2 },
+      });
+
+      expect(byTestId('sh-today-day-badge')).toBeNull();
+      expect(el().querySelector('p.streaks')).toBeNull();
+      expect(byTestId('sh-today-movement')!.textContent).not.toContain('streak');
+    });
+
+    it('persists the tapped movement intention per local date', async () => {
+      pinClock('2026-06-12T06:11:00');
+      await setup(baseToday);
+
+      byTestId<HTMLButtonElement>('sh-today-intention-IndoorBike')!.click();
+      fixture.detectChanges();
+
+      expect(localStorage.getItem('sh.intention.2026-06-12')).toBe('IndoorBike');
+      expect(byTestId('sh-today-intention-IndoorBike')!.classList).toContain('selected');
+    });
+
+    it('surfaces one discovery card and a dismissal snoozes it for seven days', async () => {
+      pinClock('2026-06-12T06:11:00');
+      await setup(baseToday); // checkInCurrent 11 ⇒ the streak card is eligible
+
+      const discovery = byTestId('sh-today-discovery')!;
+      expect(discovery.textContent).toContain('A rhythm is forming');
+
+      discovery.querySelector<HTMLButtonElement>('[data-testid="sh-discovery-dismiss"]')!.click();
+      fixture.detectChanges();
+
+      expect(byTestId('sh-today-discovery')).toBeNull();
+      expect(localStorage.getItem('sh.discovery.snooze.streaks')).toBe('2026-06-19');
+    });
+
+    it('Done records the contact through the store and the nudge goes quiet at once', async () => {
+      pinClock('2026-06-12T06:11:00');
+      await setup(baseToday);
+
+      byTestId<HTMLButtonElement>('sh-today-connection-done')!.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(contactedIds).toEqual(['p-1']);
+      expect(byTestId('sh-today-connection')).toBeNull();
+    });
+  });
+
+  describe('midday', () => {
+    const midday: TodayDto = {
+      ...baseToday,
+      fasting: { ...baseToday.fasting, current: null, windowOpen: true },
+    };
+
+    it('offers the eating window with a closes-in countdown and a gentle morning reminder', async () => {
+      pinClock('2026-06-12T12:47:00');
+      await setup(midday);
+
+      expect(el().querySelector('h1.greeting')!.textContent).toContain('Good afternoon');
+      expect(byTestId('sh-today-status-pill')!.textContent).toContain('Window open · closes 19:00');
+
+      const eating = byTestId('sh-today-eating-window')!;
+      expect(eating.textContent).toContain('Break your fast well.');
+      expect(byTestId('sh-today-window-countdown')!.textContent).toContain('closes in 6h 13m');
+
+      const stillHere = byTestId('sh-today-still-here')!;
+      expect(stillHere.textContent).toContain('Your morning is still here');
+      expect(stillHere.textContent).not.toMatch(/missed|behind|late/i);
+    });
+
+    it('Log a meal ends an open fast first, then opens the meal sheet', async () => {
+      pinClock('2026-06-12T12:47:00');
+      await setup({ ...midday, fasting: { ...midday.fasting, current: baseToday.fasting.current } });
+
+      byTestId<HTMLButtonElement>('sh-today-log-meal')!.click();
+      await fixture.whenStable();
+
+      expect(endFastCalls).toBe(1);
+      expect(openSheet).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('evening', () => {
+    const evening: TodayDto = {
+      ...baseToday,
+      checkIn: { id: 'c-1', date: '2026-06-12', moodRating: 4, spiritualRating: 3, note: null },
+      reading: { ...baseToday.reading!, completedToday: true },
+      ritualCompletedToday: true,
+      fasting: { ...baseToday.fasting, current: null, windowOpen: true },
+    };
+
+    it('counts the window down in gold under an hour and glances at tomorrow', async () => {
+      pinClock('2026-06-12T18:20:00');
+      await setup(evening);
+
+      const closing = byTestId('sh-today-window-closing')!;
+      expect(closing.textContent).toContain('Window closes in 40 minutes');
+      expect(closing.textContent).toContain('Finish well — water after');
+      expect(closing.classList).toContain('gold');
+
+      expect(byTestId('sh-today-tomorrow')!.textContent).toContain('Reading: John 13 · Prayer: Olivia');
+      expect(byTestId('sh-today-morning-complete')).not.toBeNull();
+    });
+
+    it('keeps the countdown neutral with more than an hour left', async () => {
+      pinClock('2026-06-12T17:30:00');
+      await setup(evening);
+
+      const closing = byTestId('sh-today-window-closing')!;
+      expect(closing.textContent).toContain('Window closes in 1h 30m');
+      expect(closing.classList).not.toContain('gold');
+    });
+
+    it('"Not tonight" dismisses the movement nudge for the day with equal calm', async () => {
+      pinClock('2026-06-12T18:20:00');
+      await setup(evening);
+
+      expect(byTestId('sh-today-evening-movement')!.textContent).toContain('Still time for 20 minutes');
+
+      byTestId<HTMLButtonElement>('sh-today-movement-dismiss')!.click();
+      fixture.detectChanges();
+
+      expect(byTestId('sh-today-evening-movement')).toBeNull();
+      expect(localStorage.getItem('sh.movement.dismissed.2026-06-12')).toBe('1');
+    });
+  });
+
+  describe('night', () => {
+    it('rests: a verse fragment, no header, and not a single call to action', async () => {
+      pinClock('2026-06-12T23:00:00');
+      await setup(baseToday);
+
+      const night = byTestId('sh-today-night')!;
+      expect(night.textContent).toContain('He gives sleep to his loved ones.');
+      expect(night.textContent).toContain('Psalm 127:2 · WEB');
+      expect(night.textContent).toContain('Shalom. Rest well.');
+
+      expect(el().querySelector('h1.greeting')).toBeNull();
+      expect(el().querySelectorAll('button, a').length).toBe(0);
+    });
   });
 });

@@ -12,4 +12,10 @@ export interface TodayReadingDto {
   readonly planName: string;
   readonly completedCount: number;
   readonly totalDays: number;
+  /**
+   * Tomorrow's likely passage for the evening glance — the first
+   * still-uncompleted day (today's while it isn't done), or null when the
+   * plan would be finished.
+   */
+  readonly nextPassageReference: string | null;
 }

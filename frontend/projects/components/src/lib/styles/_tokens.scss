@@ -23,6 +23,7 @@
   --sh-on-tertiary:           #FBF8F2;
   --sh-tertiary-container:    #F2E4C8;
   --sh-on-tertiary-container: #4D3B17;
+  --sh-tertiary-ink:          #7A5A1E;   // readable gold for text on light surfaces (≥4.5:1)
 
   --sh-error:           #A4453A;
   --sh-on-error:        #FBF8F2;
@@ -34,7 +35,7 @@
   --sh-surface-elev: #FFFDF9;
   --sh-ink:          #26312F;   // warm near-black with a teal undertone
   --sh-ink-soft:     #5D6A67;
-  --sh-ink-faint:    #939C98;
+  --sh-ink-faint:    #64716C;   // quiet but still 4.5:1 on the warm surfaces
   --sh-line:         rgba(38, 49, 47, 0.08);
   --sh-line-strong:  rgba(38, 49, 47, 0.16);
 
@@ -96,4 +97,49 @@
     --sh-fs-xl: 30px;
     --sh-fs-lg: 22px;
   }
+}
+
+// Pre-sunrise dawn theme (ADR-003): the dim warm dark palette, applied by
+// ThemeService as `.sh-dawn` on <body> before local sunrise / at night (or
+// via the manual override in Settings). Values mirror the .pen dawn frame:
+// surface #15201E, card #1D2A28, text #EAE4D6, muted #9FACA5, primary
+// #9CC6C1 — warm, dim, never pure black.
+body.sh-dawn {
+  color-scheme: dark;
+
+  --sh-primary:              #9CC6C1;
+  --sh-on-primary:           #15201E;
+  --sh-primary-container:    #24403D;
+  --sh-on-primary-container: #D9E7E4;
+
+  --sh-secondary:              #D6BC95;
+  --sh-on-secondary:           #2B2214;
+  --sh-secondary-container:    #3B3122;
+  --sh-on-secondary-container: #F0E4D1;
+
+  --sh-tertiary:              #D9B878;
+  --sh-on-tertiary:           #2B2214;
+  --sh-tertiary-container:    #443823;
+  --sh-on-tertiary-container: #F2E4C8;
+  --sh-tertiary-ink:          #D9B878;   // gold reads light on the dawn surfaces
+
+  --sh-error:           #E08D81;
+  --sh-on-error:        #2B1512;
+  --sh-error-container: #4A211B;
+
+  --sh-bg:           #15201E;
+  --sh-surface:      #192422;
+  --sh-surface-2:    #101917;
+  --sh-surface-elev: #1D2A28;
+  --sh-ink:          #EAE4D6;
+  --sh-ink-soft:     #9FACA5;
+  --sh-ink-faint:    #8A968F;
+  --sh-line:         rgba(234, 228, 214, 0.08);
+  --sh-line-strong:  rgba(234, 228, 214, 0.18);
+
+  --sh-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.25),
+                 0 2px 6px rgba(0, 0, 0, 0.25);
+  --sh-shadow-2: 0 4px 10px rgba(0, 0, 0, 0.3),
+                 0 10px 24px rgba(0, 0, 0, 0.3);
+  --sh-shadow-3: 0 20px 40px rgba(0, 0, 0, 0.45);
 }

@@ -1,9 +1,136 @@
 :host {
   display: block;
   padding-top: 24px;
+  padding-bottom: 24px;
 }
 
-.page-head h1 {
-  margin: 0 0 16px;
-  font-size: var(--sh-fs-xxl);
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: -10px;
+    border-radius: var(--sh-r-pill);
+    color: var(--sh-ink);
+    text-decoration: none;
+
+    .material-symbols-rounded {
+      font-size: 24px;
+    }
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--sh-font-sans);
+    font-size: var(--sh-fs-xl);
+    font-weight: var(--sh-fw-bold);
+    letter-spacing: -0.01em;
+    color: var(--sh-ink);
+  }
+}
+
+.group-label {
+  margin: 20px 0 8px;
+  font-size: var(--sh-fs-sm);
+  font-weight: var(--sh-fw-semibold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sh-ink-soft);
+}
+
+.group {
+  border-radius: var(--sh-r-xl);
+  background: var(--sh-surface-elev);
+  box-shadow: var(--sh-shadow-1);
+  overflow: hidden;
+
+  .row + .row {
+    border-top: 1px solid var(--sh-line);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 17px 18px;
+  border: none;
+  background: none;
+  font-family: var(--sh-font-sans);
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+
+  .icon {
+    font-size: 20px;
+    color: var(--sh-ink-soft);
+  }
+
+  .label {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--sh-fs-md);
+    color: var(--sh-ink);
+  }
+
+  .value {
+    font-size: var(--sh-fs-base);
+    color: var(--sh-ink-soft);
+    white-space: nowrap;
+  }
+
+  .chevron {
+    font-size: 20px;
+    color: var(--sh-ink-faint);
+  }
+
+  &.tappable {
+    cursor: pointer;
+  }
+}
+
+.theme-row {
+  .theme-chips {
+    display: flex;
+    gap: 6px;
+  }
+
+  .theme-chip {
+    padding: 5px 12px;
+    border: 1px solid var(--sh-line-strong);
+    border-radius: var(--sh-r-pill);
+    background: transparent;
+    font-family: var(--sh-font-sans);
+    font-size: var(--sh-fs-xs);
+    font-weight: var(--sh-fw-medium);
+    color: var(--sh-ink-soft);
+    cursor: pointer;
+
+    &.selected {
+      background: var(--sh-primary-container);
+      border-color: var(--sh-primary-container);
+      color: var(--sh-on-primary-container);
+      font-weight: var(--sh-fw-semibold);
+    }
+  }
+}
+
+.sign-out-group {
+  margin-top: 24px;
+}
+
+.sign-out {
+  justify-content: center;
+  font-size: var(--sh-fs-md);
+  font-weight: var(--sh-fw-semibold);
+  color: var(--sh-error);
+  cursor: pointer;
 }

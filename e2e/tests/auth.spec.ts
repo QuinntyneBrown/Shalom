@@ -12,9 +12,10 @@ test.describe('authentication', () => {
     await expect(page).toHaveURL(/\/today$/);
     await expect(pages.today.greeting).toContainText(SEEDED_USER.greetingName);
     await expect(pages.today.date).not.toBeEmpty();
-    await expect(pages.today.verseCard).toBeVisible();
-    await expect(pages.today.verseText).not.toBeEmpty();
-    await expect(pages.today.verseReference).not.toBeEmpty();
+    // Morning band (the fixture pins 08:00): status pill + either the
+    // ritual hero or the compact morning-complete card.
+    await expect(pages.today.statusPill).toBeVisible();
+    await expect(pages.today.ritualHero.or(pages.today.morningComplete).first()).toBeVisible();
   });
 
   test('visiting /today unauthenticated redirects to sign-in', async ({ page, pages }) => {

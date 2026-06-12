@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: '10.0.101'
+  NODE_VERSION: '22'
+  # CI-only sa password for the ephemeral SQL container; not a secret.
+  MSSQL_SA_PASSWORD: 'Sh4lom!CI#2026x'
+
+jobs:
+  backend:
+    name: Backend build + tests
+    runs-on: ubuntu-latest
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: 'Y'
+          MSSQL_SA_PASSWORD: 'Sh4lom!CI#2026x'
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Sh4lom!CI#2026x' -C -Q 'SELECT 1' -b"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 12
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build (warnings as errors)
+        run: dotnet build backend/Shalom.sln -c Release --nologo
+
+      - name: Test
+        env:
+          SHALOM_TEST_CONNECTION: 'Server=localhost,1433;User ID=sa;Password=Sh4lom!CI#2026x;TrustServerCertificate=True;Encrypt=False;Connect Timeout=30'
+        run: dotnet test backend/Shalom.sln -c Release --no-build --nologo
+
+  frontend:
+    name: Frontend build + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install workspace deps
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build (production)
+        working-directory: frontend
+        run: npx ng build shalom --configuration production
+
+      - name: Unit tests (Vitest)
+        working-directory: frontend
+        run: |
+          npx ng test shalom
+          npx ng test api
+          npx ng test components

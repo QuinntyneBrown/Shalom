@@ -24,6 +24,8 @@ export class ProgressRing {
   readonly size = input<number>(64);
   /** Ring thickness in px; defaults to ~1/9 of the size. */
   readonly stroke = input<number | null>(null);
+  /** Accessible name for the progressbar role. */
+  readonly label = input<string>('Fasting progress');
 
   protected readonly strokeWidth = computed(
     () => this.stroke() ?? Math.max(4, Math.round(this.size() / 9)),

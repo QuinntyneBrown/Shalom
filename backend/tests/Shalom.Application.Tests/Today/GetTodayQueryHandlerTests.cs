@@ -70,6 +70,10 @@ public class GetTodayQueryHandlerTests
         dto.Reading.PlanName.Should().Be("John & His Letters");
         dto.Reading.CompletedCount.Should().Be(1);
         dto.Reading.TotalDays.Should().Be(3);
+        dto.Reading.NextPassageReference.Should().Be("John 2", "today's reading isn't done, so tomorrow continues it");
+
+        dto.RitualCompletedToday.Should().BeFalse("the reading is still uncompleted");
+        dto.People.PrayerFocus.Should().NotBeNull();
 
         // Check-ins yesterday + today => current 2; reading completed yesterday only => current 1.
         dto.Streaks.CheckInCurrent.Should().Be(2);
@@ -102,6 +106,71 @@ public class GetTodayQueryHandlerTests
         dto.Reading!.DayId.Should().Be(done.Id);
         dto.Reading.CompletedToday.Should().BeTrue();
         dto.Reading.CompletedCount.Should().Be(1);
+        dto.Reading.NextPassageReference.Should().Be("John 2", "day 1 is done, so tomorrow moves on");
+        dto.RitualCompletedToday.Should().BeFalse("no check-in was saved");
+    }
+
+    [Fact]
+    public async Task Ritual_is_complete_once_checked_in_and_todays_reading_is_done()
+    {
+        await using var app = TestApp.Create();
+        var clock = new StubDateTimeProvider();
+        var today = LocalDay.Today(clock);
+        var user = NewUser();
+        app.Db.Users.Add(user);
+        app.Db.VersesOfDay.Add(Verse(today.DayOfYear));
+
+        var plan = new ReadingPlan { Id = Guid.NewGuid(), Name = "Plan", StartDate = today, IsActive = true };
+        app.Db.ReadingPlans.Add(plan);
+        app.Db.ReadingPlanDays.AddRange(
+            new ReadingPlanDay { Id = Guid.NewGuid(), ReadingPlanId = plan.Id, DayNumber = 1, PassageReference = "John 1", YouVersionUrl = "https://www.bible.com/bible/111/JHN.1", CompletedOn = today },
+            new ReadingPlanDay { Id = Guid.NewGuid(), ReadingPlanId = plan.Id, DayNumber = 2, PassageReference = "John 2", YouVersionUrl = "https://www.bible.com/bible/111/JHN.2" });
+        app.Db.DailyCheckIns.Add(new DailyCheckIn { Id = Guid.NewGuid(), UserId = user.Id, Date = today, MoodRating = 4, SpiritualRating = 3 });
+        await app.Db.SaveChangesAsync();
+
+        var dto = await Handler(app, user.Id, clock).Handle(new GetTodayQuery(), default);
+
+        dto.RitualCompletedToday.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Ritual_is_complete_with_a_check_in_when_there_is_no_reading_at_all()
+    {
+        await using var app = TestApp.Create();
+        var clock = new StubDateTimeProvider();
+        var today = LocalDay.Today(clock);
+        var user = NewUser();
+        app.Db.Users.Add(user);
+        app.Db.VersesOfDay.Add(Verse(today.DayOfYear));
+        app.Db.DailyCheckIns.Add(new DailyCheckIn { Id = Guid.NewGuid(), UserId = user.Id, Date = today, MoodRating = 4, SpiritualRating = 3 });
+        await app.Db.SaveChangesAsync();
+
+        var dto = await Handler(app, user.Id, clock).Handle(new GetTodayQuery(), default);
+
+        dto.Reading.Should().BeNull();
+        dto.RitualCompletedToday.Should().BeTrue("a missing plan never blocks the morning");
+    }
+
+    [Fact]
+    public async Task Next_passage_is_null_when_completing_today_finished_the_plan()
+    {
+        await using var app = TestApp.Create();
+        var clock = new StubDateTimeProvider();
+        var today = LocalDay.Today(clock);
+        var user = NewUser();
+        app.Db.Users.Add(user);
+        app.Db.VersesOfDay.Add(Verse(today.DayOfYear));
+
+        var plan = new ReadingPlan { Id = Guid.NewGuid(), Name = "Plan", StartDate = today, IsActive = true };
+        app.Db.ReadingPlans.Add(plan);
+        app.Db.ReadingPlanDays.Add(new ReadingPlanDay { Id = Guid.NewGuid(), ReadingPlanId = plan.Id, DayNumber = 1, PassageReference = "John 1", YouVersionUrl = "https://www.bible.com/bible/111/JHN.1", CompletedOn = today });
+        await app.Db.SaveChangesAsync();
+
+        var dto = await Handler(app, user.Id, clock).Handle(new GetTodayQuery(), default);
+
+        dto.Reading.Should().NotBeNull();
+        dto.Reading!.CompletedToday.Should().BeTrue();
+        dto.Reading.NextPassageReference.Should().BeNull();
     }
 
     [Fact]

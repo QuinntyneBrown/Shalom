@@ -1,127 +1,309 @@
-@if (today(); as t) {
-  <header class="page-head">
-    <p class="date">{{ t.date | date: 'EEEE, MMMM d' }}</p>
-    <h1 class="greeting">Shalom, {{ t.greetingName }}</h1>
-  </header>
-
-  <sh-verse-card
-    [text]="t.verse.text"
-    [reference]="t.verse.reference"
-    [href]="t.verse.youVersionUrl"
-  />
-
-  <section class="check-in" aria-label="Morning check-in">
-    <div class="head">
-      <h2>Morning check-in</h2>
-      @if (t.checkIn) {
-        <span class="saved-badge">Saved</span>
-      }
-    </div>
-
-    <p class="label">How is your heart?</p>
-    <sh-rating-chips [(value)]="mood" />
-
-    <p class="label">How near does God feel?</p>
-    <sh-dot-scale [(value)]="spiritual" />
-
-    <input
-      class="note"
-      type="text"
-      name="note"
-      maxlength="500"
-      placeholder="A short note, if you like"
-      autocomplete="off"
-      [value]="note()"
-      (input)="onNoteInput($event)"
-    />
-
-    <button class="save" type="button" [disabled]="!canSave()" (click)="saveCheckIn()">
-      {{ saving() ? 'Saving…' : t.checkIn ? 'Update check-in' : 'Save check-in' }}
-    </button>
-  </section>
-
-  @if (t.reading; as r) {
-    <sh-reading-card
-      [planName]="r.planName"
-      [dayNumber]="r.dayNumber"
-      [passageReference]="r.passageReference"
-      [href]="r.youVersionUrl"
-      [completed]="r.completedToday"
-      [completedCount]="r.completedCount"
-      [totalDays]="r.totalDays"
-      (markRead)="markRead()"
-    />
-  }
-
-  <a
-    class="fasting-card"
-    routerLink="/health/fasting"
-    data-testid="sh-today-fasting"
-    aria-label="Fasting"
-  >
-    <div class="head">
-      <span class="icon material-symbols-rounded" aria-hidden="true">timer</span>
-      <h2>Fasting</h2>
-      <span class="ratio">{{ fastRatio() }}</span>
-    </div>
-    <div class="body">
-      <sh-progress-ring [progress]="fastProgress()" [size]="48" />
-      <div class="copy">
-        @if (fastElapsed(); as elapsed) {
-          <p class="elapsed" data-testid="sh-today-fasting-elapsed">{{ elapsed }}</p>
-        } @else {
-          <p class="elapsed quiet" data-testid="sh-today-fasting-elapsed">Not fasting</p>
-        }
-        <p class="window" data-testid="sh-today-fasting-window">{{ fastWindowLine() }}</p>
-      </div>
-    </div>
-  </a>
-
-  @if (t.people.nudge; as n) {
-    <section class="connection-card" data-testid="sh-today-connection" aria-label="Connection">
-      <div class="head">
-        <span class="icon material-symbols-rounded" aria-hidden="true">favorite</span>
-        <h2>Connection</h2>
-        <span class="meta">today</span>
-      </div>
-      <p class="prompt" data-testid="sh-today-connection-prompt">{{ n.prompt }}</p>
-      <div class="actions">
-        @if (n.phone) {
-          <a
-            class="chip filled"
-            [href]="nudgeSmsHref(n)"
-            data-testid="sh-today-connection-text"
-          >Text</a>
-        }
-        <button
-          type="button"
-          class="chip"
-          data-testid="sh-today-connection-done"
-          [disabled]="connecting()"
-          (click)="connectionDone(n)"
-        >Done</button>
-        <button
-          type="button"
-          class="chip plain"
-          data-testid="sh-today-connection-snooze"
-          [disabled]="connecting()"
-          (click)="connectionSnooze(n)"
-        >Not today</button>
-      </div>
+@if (store.today(); as t) {
+  @if (band() === 'night') {
+    <!-- Night (22:00–4:30): rest, not hustle. No CTAs — nav only. -->
+    <section class="night" data-testid="sh-today-night" aria-label="Rest">
+      <span class="material-symbols-rounded moon" aria-hidden="true">bedtime</span>
+      <p class="night-verse">He gives sleep to his loved ones.</p>
+      <p class="night-ref">Psalm 127:2 · WEB</p>
+      <p class="night-rest">Shalom. Rest well.</p>
     </section>
+  } @else {
+    <header class="page-head">
+      <div class="head-row">
+        <p class="date">{{ now() | date: 'EEEE, MMMM d' }}</p>
+        <a
+          class="avatar"
+          routerLink="/settings"
+          aria-label="Settings"
+          data-testid="sh-today-avatar"
+        >{{ avatarInitial() }}</a>
+      </div>
+      <h1 class="greeting">{{ greetingWord() }}, {{ t.greetingName }}</h1>
+      <p class="status-pill" data-testid="sh-today-status-pill">
+        <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+        {{ statusPill() }}
+      </p>
+    </header>
+
+    <!-- Morning state: the ritual hero, or the compact morning-complete card. -->
+    @if (band() === 'morning') {
+      @if (!t.ritualCompletedToday) {
+        <section class="ritual-hero" data-testid="sh-ritual-hero" aria-label="Morning ritual">
+          <div class="hero-head">
+            <span class="material-symbols-rounded hero-icon" aria-hidden="true">wb_twilight</span>
+            @if (store.streaksVisible()) {
+              <span class="day-badge" data-testid="sh-today-day-badge">
+                <span class="material-symbols-rounded" aria-hidden="true">wb_twilight</span>
+                Day {{ dayNumber() }}
+              </span>
+            }
+          </div>
+          <h2 class="hero-title">Begin your morning</h2>
+          <p class="hero-sub">Check-in · Scripture · Prayer — about 2 minutes</p>
+          <a class="hero-begin" routerLink="/today/ritual" data-testid="sh-ritual-begin">Begin</a>
+        </section>
+      } @else {
+        <ng-container *ngTemplateOutlet="morningComplete" />
+      }
+    }
+
+    @if (band() === 'midday' || band() === 'evening') {
+      @if (t.ritualCompletedToday) {
+        <ng-container *ngTemplateOutlet="morningComplete" />
+      } @else {
+        <!-- Gentle, never guilt: the morning simply waits. -->
+        <section class="card still-here" data-testid="sh-today-still-here">
+          <div class="copy">
+            <p class="still-title">Your morning is still here</p>
+            <p class="still-sub">Two quiet minutes, whenever you're ready.</p>
+          </div>
+          <a class="chip" routerLink="/today/ritual" data-testid="sh-ritual-begin">Begin</a>
+        </section>
+      }
+    }
+
+    <!-- Midday: the eating window is the main event. -->
+    @if (band() === 'midday') {
+      <section class="card" data-testid="sh-today-eating-window" aria-label="Eating window">
+        <div class="card-head">
+          <span class="icon material-symbols-rounded" aria-hidden="true">restaurant</span>
+          <h2>Eating window</h2>
+          <span class="meta">{{ t.fasting.windowOpen ? 'open' : 'soon' }}</span>
+        </div>
+        <p class="card-line">
+          {{ t.fasting.windowOpen ? 'Break your fast well.' : fastWindowLine() }}
+        </p>
+        <div class="card-actions">
+          <button
+            type="button"
+            class="chip filled"
+            data-testid="sh-today-log-meal"
+            (click)="openMealLog()"
+          >Log a meal</button>
+          @if (windowCloseMinutes() !== null) {
+            <span class="closes" data-testid="sh-today-window-countdown">
+              closes in {{ windowCountdown() }}
+            </span>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Evening: the closing window, gold when under an hour. -->
+    @if (band() === 'evening') {
+      @if (t.fasting.windowOpen) {
+        <section
+          class="card closing"
+          [class.gold]="closingSoon()"
+          data-testid="sh-today-window-closing"
+          aria-label="Eating window closing"
+        >
+          <div class="card-head">
+            <span class="icon material-symbols-rounded" aria-hidden="true">schedule</span>
+            <h2>Window closes in {{ windowCountdown() }}</h2>
+          </div>
+          <p class="card-line">Finish well — water after, if you're still peckish.</p>
+          <a class="adjust" routerLink="/health/fasting">Adjust tonight</a>
+        </section>
+      } @else {
+        <ng-container *ngTemplateOutlet="fastingCard" />
+      }
+
+      @if (showEveningMovement()) {
+        <section class="card" data-testid="sh-today-evening-movement" aria-label="Movement">
+          <div class="card-head">
+            <span class="icon material-symbols-rounded" aria-hidden="true">directions_bike</span>
+            <h2>Movement</h2>
+            @if (intention()) {
+              <span class="meta">intended</span>
+            }
+          </div>
+          <p class="card-line">{{ eveningMovementLine() }}</p>
+          <div class="card-actions">
+            <button type="button" class="chip filled" (click)="openWorkoutLog()">
+              {{ eveningLogLabel() }}
+            </button>
+            <button
+              type="button"
+              class="chip plain"
+              data-testid="sh-today-movement-dismiss"
+              (click)="notTonight()"
+            >Not tonight</button>
+          </div>
+        </section>
+      }
+    }
+
+    <!-- Morning band: fasting + movement intention. -->
+    @if (band() === 'morning') {
+      <ng-container *ngTemplateOutlet="fastingCard" />
+
+      <section class="card" data-testid="sh-today-movement" aria-label="Movement">
+        <div class="card-head">
+          <span class="icon material-symbols-rounded" aria-hidden="true">directions_bike</span>
+          <h2>Movement</h2>
+          @if (store.streaksVisible()) {
+            <span class="meta">streak {{ t.streaks.movementCurrent }}</span>
+          }
+        </div>
+        @if (todaysWorkout(); as w) {
+          <p class="card-line">Done today — {{ w.durationMinutes }} minutes. Nicely moved.</p>
+        } @else {
+          <p class="card-line">What feels right today?</p>
+          <div class="intention-chips">
+            @for (option of intentionOptions; track option.value) {
+              <button
+                type="button"
+                class="chip"
+                [class.selected]="intention() === option.value"
+                [attr.data-testid]="'sh-today-intention-' + option.value"
+                (click)="chooseIntention(option.value)"
+              >{{ option.label }}</button>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Midday movement: the intention, gently held. -->
+    @if (band() === 'midday') {
+      <section class="card" data-testid="sh-today-movement" aria-label="Movement">
+        <div class="card-head">
+          <span class="icon material-symbols-rounded" aria-hidden="true">directions_bike</span>
+          <h2>Movement</h2>
+          @if (intention()) {
+            <span class="meta">intended</span>
+          }
+        </div>
+        <p class="card-line">{{ middayMovementLine() }}</p>
+        @if (!todaysWorkout() && intention() !== 'Rest') {
+          <div class="card-actions">
+            <button type="button" class="chip" (click)="openWorkoutLog()">Log it</button>
+          </div>
+        }
+      </section>
+    }
+
+    <!-- Connection — one invitation a day, morning through evening. -->
+    @if (band() !== 'evening' && store.nudge(); as n) {
+      <section class="card" data-testid="sh-today-connection" aria-label="Connection">
+        <div class="card-head">
+          <span class="icon material-symbols-rounded" aria-hidden="true">favorite</span>
+          <h2>Connection</h2>
+          <span class="meta">today</span>
+        </div>
+        <p class="card-line" data-testid="sh-today-connection-prompt">{{ n.prompt }}</p>
+        <div class="card-actions">
+          @if (n.phone) {
+            <a class="chip filled" [href]="nudgeSmsHref(n)" data-testid="sh-today-connection-text">
+              <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
+              Text
+            </a>
+            <a class="chip" [href]="nudgeTelHref(n)" data-testid="sh-today-connection-call">
+              <span class="material-symbols-rounded" aria-hidden="true">call</span>
+              Call
+            </a>
+          }
+          <button
+            type="button"
+            class="chip"
+            data-testid="sh-today-connection-done"
+            [disabled]="connecting()"
+            (click)="connectionDone(n)"
+          >Done</button>
+          <button
+            type="button"
+            class="chip plain"
+            data-testid="sh-today-connection-snooze"
+            [disabled]="connecting()"
+            (click)="connectionSnooze(n)"
+          >Not today</button>
+        </div>
+      </section>
+    }
+
+    @if (band() !== 'evening' && upcomingDateLine(); as line) {
+      <p class="upcoming-date" data-testid="sh-today-upcoming-date">
+        <span class="material-symbols-rounded" aria-hidden="true">cake</span>
+        {{ line }}
+      </p>
+    }
+
+    <!-- Evening: tomorrow, gently. -->
+    @if (band() === 'evening') {
+      <section class="card tomorrow" data-testid="sh-today-tomorrow" aria-label="Tomorrow">
+        <div class="card-head">
+          <span class="icon material-symbols-rounded" aria-hidden="true">bedtime</span>
+          <h2>Tomorrow</h2>
+        </div>
+        <p class="card-line">{{ tomorrowLine() }}</p>
+      </section>
+    }
+
+    <!-- Discovery: one quiet card, mornings and middays only. -->
+    @if (band() !== 'evening' && discovery(); as card) {
+      <sh-discovery-card
+        data-testid="sh-today-discovery"
+        [icon]="card.icon"
+        [title]="card.title"
+        [body]="card.body"
+        [ctaLabel]="card.ctaLabel"
+        [soon]="card.soon"
+        (cta)="followDiscovery(card)"
+        (dismissed)="dismissDiscovery(card)"
+      />
+    }
+
+    @if (store.streaksVisible()) {
+      <p class="streaks">
+        {{ t.streaks.checkInCurrent }}-day check-in rhythm ·
+        {{ t.streaks.readingCurrent }}-day reading rhythm
+      </p>
+    }
   }
 
-  @if (upcomingDateLine(); as line) {
-    <p class="upcoming-date" data-testid="sh-today-upcoming-date">
-      <span class="material-symbols-rounded" aria-hidden="true">cake</span>
-      {{ line }}
-    </p>
-  }
+  <!-- Shared templates -->
+  <ng-template #morningComplete>
+    <section class="card morning-complete" data-testid="sh-today-morning-complete">
+      <span class="material-symbols-rounded check" aria-hidden="true">check_circle</span>
+      <div class="copy">
+        <p class="mc-title">Morning complete</p>
+        <p class="mc-sub">{{ morningCompleteLine() }}</p>
+      </div>
+      @if (store.streaksVisible()) {
+        <span class="day-badge gold" data-testid="sh-today-day-badge">
+          <span class="material-symbols-rounded" aria-hidden="true">wb_twilight</span>
+          Day {{ dayNumber() }}
+        </span>
+      }
+    </section>
+  </ng-template>
 
-  <p class="streaks">
-    {{ t.streaks.checkInCurrent }}-day check-in rhythm ·
-    {{ t.streaks.readingCurrent }}-day reading rhythm
-  </p>
+  <ng-template #fastingCard>
+    <a
+      class="card fasting-card"
+      routerLink="/health/fasting"
+      data-testid="sh-today-fasting"
+      aria-label="Fasting"
+    >
+      <div class="card-head">
+        <span class="icon material-symbols-rounded" aria-hidden="true">timer</span>
+        <h2>Fasting</h2>
+        <span class="meta">{{ fastRatio() }}</span>
+      </div>
+      <div class="fasting-body">
+        <sh-progress-ring [progress]="fastProgress()" [size]="48" />
+        <div class="copy">
+          @if (fastElapsed(); as elapsed) {
+            <p class="elapsed" data-testid="sh-today-fasting-elapsed">{{ elapsed }}</p>
+          } @else {
+            <p class="elapsed quiet" data-testid="sh-today-fasting-elapsed">Not fasting</p>
+          }
+          <p class="window" data-testid="sh-today-fasting-window">{{ fastWindowLine() }}</p>
+        </div>
+      </div>
+    </a>
+  </ng-template>
 } @else {
   <p class="loading">Preparing your morning…</p>
 }

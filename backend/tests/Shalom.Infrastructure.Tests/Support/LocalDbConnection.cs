@@ -14,6 +14,18 @@ public static class LocalDbConnection
 
     public static string For(string database)
     {
+        // CI override: SHALOM_TEST_CONNECTION carries a full SQL Server
+        // connection string (e.g. a container's sa login); only the database
+        // name is swapped per call. Without it, LocalDB resolves below.
+        var env = Environment.GetEnvironmentVariable("SHALOM_TEST_CONNECTION");
+        if (!string.IsNullOrWhiteSpace(env))
+        {
+            return new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(env)
+            {
+                InitialCatalog = database
+            }.ConnectionString;
+        }
+
         var pipe = ResolvePipe();
         return $"Server={pipe};Database={database};Trusted_Connection=True;TrustServerCertificate=True;Connect Timeout=30";
     }
